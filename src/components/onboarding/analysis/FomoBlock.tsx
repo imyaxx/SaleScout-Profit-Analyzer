@@ -1,0 +1,33 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import AnimatedNumber from './AnimatedNumber';
+import { formatMoney } from '../../../lib/utils';
+
+interface FomoBlockProps {
+  value: number;
+}
+
+const FomoBlock: React.FC<FomoBlockProps> = ({ value }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-3xl p-6 md:p-8 shadow-xl shadow-blue-200"
+    >
+      <p className="text-sm text-blue-100 uppercase tracking-wide font-semibold mb-2">
+        Потенциал упущенной выгоды
+      </p>
+      <h4 className="text-2xl md:text-3xl font-bold mb-2">
+        Если бы вы начали 7 дней назад,
+      </h4>
+      <p className="text-xl md:text-2xl font-semibold">
+        вы бы заработали дополнительно: <span className="text-white">
+          <AnimatedNumber value={value} format={(val) => `+${formatMoney(val)}`} />
+        </span>
+      </p>
+    </motion.div>
+  );
+};
+
+export default FomoBlock;

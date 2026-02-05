@@ -71,9 +71,6 @@ PORT=4000
 CORS_ORIGIN=http://localhost:3000
 ```
 
-
-```
-
 ## Запуск
 **Frontend**
 ```

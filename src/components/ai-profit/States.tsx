@@ -1,54 +1,12 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Search, TrendingUp, Target, AlertCircle, RefreshCw, Layers } from 'lucide-react';
-import { cn } from '../../lib/utils';
-
-export const Onboarding: React.FC = () => {
-  const steps = [
-    {
-      icon: Search,
-      title: "Найдите товар",
-      desc: "Скопируйте ссылку на любой товар из маркетплейса"
-    },
-    {
-      icon: Target,
-      title: "Укажите магазин",
-      desc: "Введите название вашего магазина для сравнения"
-    },
-    {
-      icon: TrendingUp,
-      title: "Получите анализ",
-      desc: "Искусственный интеллект рассчитает вашу выгоду и даст советы"
-    }
-  ];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12">
-      {steps.map((step, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: idx * 0.1 }}
-          className="flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
-        >
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-            <step.icon size={24} />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-          <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
-        </motion.div>
-      ))}
-    </div>
-  );
-};
+import React from "react";
+import { motion } from "framer-motion";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 export const LoadingState: React.FC = () => {
   return (
     <div className="space-y-8 animate-pulse py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="h-32 bg-gray-200 rounded-2xl"></div>
         ))}
       </div>

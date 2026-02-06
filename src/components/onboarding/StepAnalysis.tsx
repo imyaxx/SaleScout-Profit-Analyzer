@@ -160,9 +160,15 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
     [userShopBase, smoothPriceDropPercent]
   );
 
+  // Base user without price simulation (for mini ranking animation only)
+  const baseComputedUser = useMemo(
+    () => computeSimulatedUser(userShopBase, 0),
+    [userShopBase]
+  );
+
   const rankingRenderList = useMemo(
-    () => buildMiniRating(top5Sellers, computedUser, shopName),
-    [top5Sellers, computedUser, shopName]
+    () => buildMiniRating(top5Sellers, baseComputedUser, shopName),
+    [top5Sellers, baseComputedUser, shopName]
   );
 
   if (viewState === 'loading') {

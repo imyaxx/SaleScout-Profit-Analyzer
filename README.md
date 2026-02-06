@@ -38,32 +38,66 @@
 ├─ vite.config.ts
 ├─ tsconfig.json
 ├─ package.json
-├─ src
-│  ├─ App.tsx
-│  ├─ index.tsx
-│  ├─ components
-│  │  ├─ ai-profit
-│  │  └─ onboarding
-│  │     └─ analysis
-│  ├─ hooks
-│  ├─ lib
-│  ├─ pages
-│  └─ types.ts
-└─ server
+├─ src/
+│  ├─ App.tsx                        # Корневой компонент с навбаром
+│  ├─ index.tsx                      # Точка входа React
+│  ├─ types.ts                       # TypeScript‑интерфейсы (AnalyzeRequest, KaspiAnalysis, LeadPayload)
+│  ├─ assets/
+│  │  └─ sellers-bg.png              # Фон телефона для мини‑рейтинга
+│  ├─ components/
+│  │  ├─ ui/                         # Переиспользуемые UI‑компоненты
+│  │  │  ├─ States.tsx               #   LoadingState / ErrorState
+│  │  │  ├─ ErrorBoundary.tsx        #   React Error Boundary
+│  │  │  └─ AnimatedNumber.tsx       #   Анимация числовых значений
+│  │  ├─ wizard/                     # Шаги онбординг‑визарда
+│  │  │  ├─ StepProgress.tsx         #   Прогресс‑бар (4 шага)
+│  │  │  ├─ StepWelcome.tsx          #   Шаг 1 — приветствие
+│  │  │  ├─ StepInput.tsx            #   Шаг 2 — ввод URL + магазин
+│  │  │  ├─ StepConfirm.tsx          #   Шаг 2.5 — подтверждение
+│  │  │  └─ StepLeadForm.tsx         #   Шаг 4 — форма заявки
+│  │  └─ analysis/                   # Дашборд анализа (шаг 3)
+│  │     ├─ StepAnalysis.tsx         #   Оркестратор дашборда
+│  │     ├─ ProfitChart.tsx          #   SVG‑график прибыли
+│  │     ├─ FomoBlock.tsx            #   FOMO‑блок упущенной выгоды
+│  │     ├─ PriceSimulator.tsx       #   Симулятор цены (слайдер)
+│  │     ├─ PositionRanking.tsx      #   Мини‑рейтинг продавцов
+│  │     ├─ ConfidenceMeter.tsx      #   Метрика уверенности AI
+│  │     └─ AnalysisTimer.tsx        #   Таймер актуальности
+│  ├─ hooks/
+│  │  └─ useThrottledValue.ts        # Хук для троттлинга значений
+│  ├─ lib/
+│  │  ├─ onboardingClient.ts         # API‑клиент (analyzeKaspi, submitLead)
+│  │  ├─ utils.ts                    # Утилиты (cn, formatMoney, и др.)
+│  │  └─ miniSellerRanking.ts        # Логика мини‑рейтинга продавцов
+│  └─ pages/
+│     └─ AiProfitAnalyzerPage.tsx    # Главная страница — состояние визарда
+└─ server/
    ├─ package.json
-   └─ src
-      ├─ index.js
-      ├─ routes
-      ├─ models
-      └─ services
+   ├─ .env.example
+   └─ src/
+      ├─ index.js                    # Express + MongoDB подключение
+      ├─ models/
+      │  ├─ Lead.js                  # Модель заявки
+      │  └─ Record.js               # Модель записи анализа
+      ├─ routes/
+      │  ├─ analyze.js               # POST /api/analyze
+      │  ├─ lead.js                  # POST /api/lead
+      │  └─ records.js               # GET/POST /api/records
+      └─ services/
+         └─ kaspiParser.js           # Интеграция с Kaspi API
 ```
 
 **Ключевые зоны**
 
-- `src/components` — UI и шаги онбординга.
-- `src/hooks` — пользовательские хуки (например, `useThrottledValue`).
-- `src/lib` — бизнес‑логика и подготовка данных для UI.
-- `server/src` — API, интеграция с Kaspi и сохранение лидов.
+| Папка | Назначение |
+|-------|-----------|
+| `src/components/ui/` | Переиспользуемые UI‑компоненты (состояния загрузки, анимации, error boundary) |
+| `src/components/wizard/` | Шаги онбординг‑визарда (приветствие, ввод, подтверждение, заявка) |
+| `src/components/analysis/` | Дашборд анализа: график, FOMO, симулятор цены, рейтинг, таймер |
+| `src/hooks/` | Пользовательские хуки (`useThrottledValue`) |
+| `src/lib/` | Бизнес‑логика, API‑клиент и утилиты |
+| `src/pages/` | Страницы приложения (управление состоянием визарда) |
+| `server/src/` | API, интеграция с Kaspi и сохранение лидов |
 
 ## Переменные окружения (Backend)
 
@@ -79,14 +113,14 @@ CORS_ORIGIN=http://localhost:3000
 
 **Frontend**
 
-```
+```bash
 npm install
 npm run dev
 ```
 
 **Backend**
 
-```
+```bash
 npm --prefix server install
 npm run dev:api
 ```
@@ -95,7 +129,7 @@ npm run dev:api
 
 - Реальный API Kaspi (без HTML‑парсинга и браузерных парсеров)
 - SVG‑график роста прибыли с анимацией линий и точек
-- FOMO‑блок “упущенной выгоды”
+- FOMO‑блок "упущенной выгоды"
 - Мини‑рейтинг продавцов с reorder‑анимацией
 - Симулятор цены без запроса к серверу
 - Confidence‑meter и таймер актуальности

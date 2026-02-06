@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorState } from '../../ai-profit/States';
+import { ErrorState } from './States';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;

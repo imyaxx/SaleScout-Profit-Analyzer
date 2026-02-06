@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import AnimatedNumber from './AnimatedNumber';
-import { formatMoney, cn } from '../../../lib/utils';
+import AnimatedNumber from '../ui/AnimatedNumber';
+import { formatMoney, cn } from '../../lib/utils';
 
 interface ProfitChartProps {
   currentSeries: number[];

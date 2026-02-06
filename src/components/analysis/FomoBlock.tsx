@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import AnimatedNumber from './AnimatedNumber';
-import { formatMoney } from '../../../lib/utils';
+import AnimatedNumber from '../ui/AnimatedNumber';
+import { formatMoney } from '../../lib/utils';
 
 interface FomoBlockProps {
   value: number;

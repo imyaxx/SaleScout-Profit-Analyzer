@@ -2,14 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { KaspiAnalysis } from '../../types';
-import { LoadingState, ErrorState } from '../ai-profit/States';
-import ProfitChart from './analysis/ProfitChart';
-import FomoBlock from './analysis/FomoBlock';
-import PositionRanking from './analysis/PositionRanking';
-import PriceSimulator from './analysis/PriceSimulator';
-import ConfidenceMeter from './analysis/ConfidenceMeter';
-import AnalysisTimer from './analysis/AnalysisTimer';
-import ErrorBoundary from './analysis/ErrorBoundary';
+import { LoadingState, ErrorState } from '../ui/States';
+import ProfitChart from './ProfitChart';
+import FomoBlock from './FomoBlock';
+import PositionRanking from './PositionRanking';
+import PriceSimulator from './PriceSimulator';
+import ConfidenceMeter from './ConfidenceMeter';
+import AnalysisTimer from './AnalysisTimer';
+import ErrorBoundary from '../ui/ErrorBoundary';
 import { buildMiniRating, computeSimulatedUser, UserShopBase } from '../../lib/miniSellerRanking';
 import { useThrottledValue } from '../../hooks/useThrottledValue';
 
@@ -52,7 +52,7 @@ const safeString = (value: string | undefined | null, fallback = 'Неизвес
 const normalizeShopKey = (value: string | undefined | null) =>
   String(value ?? '')
     .toLowerCase()
-    .replace(/["«»'’`]/g, '')
+    .replace(/["«»''`]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 

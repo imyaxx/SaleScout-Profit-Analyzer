@@ -14,9 +14,9 @@ import {
   useTransform,
 } from "framer-motion";
 import { Award } from "lucide-react";
-import { cn, formatMoney } from "../../../lib/utils";
-import { MiniSellerRankingRenderItem } from "../../../lib/miniSellerRanking";
-import sellersBg from "../../../assets/sellers-bg.png";
+import { cn, formatMoney } from "../../lib/utils";
+import { MiniSellerRankingRenderItem } from "../../lib/miniSellerRanking";
+import sellersBg from "../../assets/sellers-bg.png";
 
 interface PositionRankingProps {
   renderList: MiniSellerRankingRenderItem[];

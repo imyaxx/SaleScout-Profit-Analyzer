@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import StepProgress from '../components/onboarding/StepProgress';
-import StepWelcome from '../components/onboarding/StepWelcome';
-import StepInput from '../components/onboarding/StepInput';
-import StepConfirm from '../components/onboarding/StepConfirm';
-import StepAnalysis from '../components/onboarding/StepAnalysis';
-import StepLeadForm from '../components/onboarding/StepLeadForm';
+import StepProgress from '../components/wizard/StepProgress';
+import StepWelcome from '../components/wizard/StepWelcome';
+import StepInput from '../components/wizard/StepInput';
+import StepConfirm from '../components/wizard/StepConfirm';
+import StepAnalysis from '../components/analysis/StepAnalysis';
+import StepLeadForm from '../components/wizard/StepLeadForm';
 import { analyzeKaspi, submitLead } from '../lib/onboardingClient';
 import { KaspiAnalysis, LeadPayload } from '../types';
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingDown, ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import AnimatedNumber from './AnimatedNumber';
-import { cn, formatMoney } from '../../../lib/utils';
+import AnimatedNumber from '../ui/AnimatedNumber';
+import { cn, formatMoney } from '../../lib/utils';
 
 interface PriceSimulatorProps {
   percent: number;

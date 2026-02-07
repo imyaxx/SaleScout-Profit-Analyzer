@@ -61,7 +61,6 @@
 │  │     ├─ FomoBlock.tsx            #   FOMO‑блок упущенной выгоды
 │  │     ├─ PriceSimulator.tsx       #   Симулятор цены (слайдер)
 │  │     ├─ PositionRanking.tsx      #   Мини‑рейтинг продавцов
-│  │     ├─ ConfidenceMeter.tsx      #   Метрика уверенности AI
 │  │     └─ AnalysisTimer.tsx        #   Таймер актуальности
 │  ├─ hooks/
 │  │  └─ useThrottledValue.ts        # Хук для троттлинга значений
@@ -132,7 +131,7 @@ npm run dev:api
 - FOMO‑блок "упущенной выгоды"
 - Мини‑рейтинг продавцов с reorder‑анимацией
 - Симулятор цены без запроса к серверу
-- Confidence‑meter и таймер актуальности
+- Таймер актуальности
 
 ## Важно
 

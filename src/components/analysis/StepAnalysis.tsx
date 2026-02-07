@@ -7,7 +7,6 @@ import ProfitChart from './ProfitChart';
 import FomoBlock from './FomoBlock';
 import PositionRanking from './PositionRanking';
 import PriceSimulator from './PriceSimulator';
-import ConfidenceMeter from './ConfidenceMeter';
 import AnalysisTimer from './AnalysisTimer';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import { buildMiniRating, computeSimulatedUser, UserShopBase } from '../../lib/miniSellerRanking';
@@ -249,13 +248,6 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-            >
-              <ConfidenceMeter value={87} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
             >
               <AnalysisTimer />
             </motion.div>

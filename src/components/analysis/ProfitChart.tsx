@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { formatMoney, cn } from '../../lib/utils';
 
@@ -23,6 +24,7 @@ function buildPath(values: number[], maxValue: number) {
 }
 
 const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSeries }) => {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(currentSeries.length - 1);
   const maxValue = useMemo(() => {
     const max = Math.max(...currentSeries, ...optimizedSeries);
@@ -47,25 +49,28 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
     return indexes;
   }, [currentSeries.length]);
 
+  const badges = t('analysis.profitChart.badges', { returnObjects: true });
+  const badgeList = Array.isArray(badges) ? (badges as string[]) : [];
+
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-blue-900/5">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-xl shadow-blue-900/5">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <p className="text-xs uppercase font-semibold text-gray-400">Прогноз прибыли на 30 дней</p>
-          <h3 className="text-xl md:text-2xl font-bold text-gray-900 mt-1">
-            Рост продаж с интерактивной стратегией
+          <p className="text-xs uppercase font-semibold text-gray-400">{t('analysis.profitChart.kicker')}</p>
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mt-1">
+            {t('analysis.profitChart.title')}
           </h3>
         </div>
-        <div className="flex flex-wrap gap-4">
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
-            <p className="text-xs text-gray-400 font-semibold uppercase">Текущая стратегия</p>
-            <p className="text-lg font-bold text-gray-700">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
+          <div className="bg-gray-50 border border-gray-100 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex-1 min-w-0">
+            <p className="text-[10px] sm:text-xs text-gray-400 font-semibold uppercase truncate">{t('analysis.profitChart.current')}</p>
+            <p className="text-base sm:text-lg font-bold text-gray-700">
               <AnimatedNumber value={activeCurrent} format={formatMoney} />
             </p>
           </div>
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
-            <p className="text-xs text-blue-500 font-semibold uppercase">С SaleScout</p>
-            <p className="text-lg font-bold text-blue-700">
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex-1 min-w-0">
+            <p className="text-[10px] sm:text-xs text-blue-500 font-semibold uppercase truncate">{t('analysis.profitChart.withSalescout')}</p>
+            <p className="text-base sm:text-lg font-bold text-blue-700">
               <AnimatedNumber value={activeOptimized} format={formatMoney} />
             </p>
           </div>
@@ -75,7 +80,7 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
       <div className="relative">
         <svg
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-          className="w-full h-[260px]"
+          className="w-full h-[180px] sm:h-[220px] md:h-[260px]"
         >
           <defs>
             <linearGradient id="salescoutLine" x1="0" y1="0" x2="1" y2="1">
@@ -166,25 +171,20 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
         </svg>
 
         <div className="flex items-center justify-between text-xs text-gray-400 px-2 -mt-2">
-          <span>День 0</span>
-          <span>День 30</span>
+          <span>{t('analysis.profitChart.day', { day: 0 })}</span>
+          <span>{t('analysis.profitChart.day', { day: 30 })}</span>
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3 text-xs text-gray-500">
-        {['График адаптируется под изменения цены в реальном времени', 'Сценарий учитывает динамику Kaspi'].map(
-          (item) => (
-            <span
-              key={item}
-              className={cn(
-                'px-3 py-1 rounded-full border border-gray-100 bg-gray-50',
-                'text-gray-500'
-              )}
-            >
-              {item}
-            </span>
-          )
-        )}
+      <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3 text-xs text-gray-500">
+        {badgeList.map((item) => (
+          <span
+            key={item}
+            className={cn('px-3 py-1 rounded-full border border-gray-100 bg-gray-50', 'text-gray-500')}
+          >
+            {item}
+          </span>
+        ))}
       </div>
     </div>
   );

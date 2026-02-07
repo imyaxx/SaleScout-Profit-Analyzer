@@ -1,4 +1,5 @@
 import React from 'react';
+import i18next from 'i18next';
 import { ErrorState } from './States';
 
 interface ErrorBoundaryProps {
@@ -15,7 +16,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   state: ErrorBoundaryState = { hasError: false, message: '' };
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, message: error?.message || 'Ошибка отображения анализа' };
+    return {
+      hasError: true,
+      message: error?.message || i18next.t('errors.analysisRender')
+    };
   }
 
   componentDidCatch(error: Error) {

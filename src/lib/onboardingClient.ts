@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { AnalyzeRequest, KaspiAnalysis, LeadPayload } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
@@ -13,7 +14,7 @@ export async function analyzeKaspi(payload: AnalyzeRequest): Promise<KaspiAnalys
 
   if (!response.ok) {
     const data = await response.json().catch(() => null);
-    const message = data?.message || 'Не удалось выполнить анализ';
+    const message = data?.message || i18next.t('errors.analyzeFailed');
     throw new Error(message);
   }
 
@@ -31,7 +32,7 @@ export async function submitLead(payload: LeadPayload): Promise<{ id: string; cr
 
   if (!response.ok) {
     const data = await response.json().catch(() => null);
-    const message = data?.message || 'Не удалось отправить заявку';
+    const message = data?.message || i18next.t('errors.leadFailed');
     throw new Error(message);
   }
 

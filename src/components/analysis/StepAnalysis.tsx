@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { KaspiAnalysis } from '../../types';
 import { LoadingState, ErrorState } from '../ui/States';
 import ProfitChart from './ProfitChart';
@@ -45,8 +46,7 @@ const toNumber = (value: number | null | undefined, fallback = 0) => {
   return Number.isFinite(numeric) ? numeric : fallback;
 };
 
-const safeString = (value: string | undefined | null, fallback = 'Неизвестный продавец') =>
-  String(value ?? fallback);
+const safeString = (value: string | undefined | null, fallback: string) => String(value ?? fallback);
 
 const normalizeShopKey = (value: string | undefined | null) =>
   String(value ?? '')
@@ -56,8 +56,10 @@ const normalizeShopKey = (value: string | undefined | null) =>
     .trim();
 
 const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error, shopName, onRetry, onNext }) => {
+  const { t, i18n } = useTranslation();
   const [rawPriceDropPercent, setRawPriceDropPercent] = useState(0);
   const smoothPriceDropPercent = useThrottledValue(rawPriceDropPercent, 60);
+  const unknownSeller = t('analysis.unknownSeller');
 
   const viewState = isLoading ? 'loading' : error ? 'error' : analysis ? 'success' : 'idle';
   const effectiveAnalysis = analysis ?? demoAnalysisData;
@@ -110,7 +112,7 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
     const offers = Array.isArray(effectiveAnalysis.offers) ? effectiveAnalysis.offers : [];
     const sorted = offers
       .map((offer) => ({
-        name: safeString(offer.name),
+        name: safeString(offer.name, unknownSeller),
         price: toNumber(offer.price, 0)
       }))
       .filter((offer) => offer.name && offer.price > 0)
@@ -127,7 +129,7 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
       if (top.length >= 5) break;
     }
     return top;
-  }, [effectiveAnalysis.offers]);
+  }, [effectiveAnalysis.offers, i18n.language, unknownSeller]);
 
   const userShopBase = useMemo(() => {
     if (!effectiveAnalysis.myShopFound) return null;
@@ -138,20 +140,24 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
     const normalizedTarget = normalizeShopKey(shopName);
     const offers = Array.isArray(effectiveAnalysis.offers) ? effectiveAnalysis.offers : [];
     const matched = normalizedTarget
-      ? offers.find((offer) => normalizeShopKey(safeString(offer.name)) === normalizedTarget)
+      ? offers.find(
+          (offer) => normalizeShopKey(safeString(offer.name, unknownSeller)) === normalizedTarget
+        )
       : null;
 
     return {
       rankBase: Number(rank),
       priceBase: Number(price),
-      name: matched ? safeString(matched.name) : safeString(shopName)
+      name: matched ? safeString(matched.name, unknownSeller) : safeString(shopName, unknownSeller)
     };
   }, [
     effectiveAnalysis.myShopFound,
     effectiveAnalysis.myShopPosition,
     effectiveAnalysis.myShopPrice,
     effectiveAnalysis.offers,
-    shopName
+    shopName,
+    i18n.language,
+    unknownSeller
   ]);
 
   const computedUser = useMemo(
@@ -166,8 +172,11 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
   );
 
   const rankingRenderList = useMemo(
-    () => buildMiniRating(top5Sellers, baseComputedUser, shopName),
-    [top5Sellers, baseComputedUser, shopName]
+    () =>
+      buildMiniRating(top5Sellers, baseComputedUser, shopName, {
+        userTitle: t('analysis.ranking.yourShop')
+      }),
+    [top5Sellers, baseComputedUser, shopName, i18n.language, t]
   );
 
   if (viewState === 'loading') {
@@ -175,28 +184,30 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
   }
 
   if (viewState === 'error') {
-    return <ErrorState message={error ?? 'Ошибка анализа'} onRetry={onRetry} />;
+    return <ErrorState message={error ?? t('analysis.error')} onRetry={onRetry} />;
   }
+
+  const dateLocale =
+    i18n.language === 'kk' ? 'kk-KZ' : i18n.language === 'en' ? 'en-US' : 'ru-RU';
+  const formattedDate = new Date().toLocaleDateString(dateLocale);
 
   return (
     <ErrorBoundary onRetry={onRetry}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-10"
+        className="space-y-6 sm:space-y-10"
       >
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-gray-100 pb-6">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            Результат анализа по товару
-            <span className="text-sm font-normal text-gray-400">
-              / {new Date().toLocaleDateString('ru-RU')}
-            </span>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 border-b border-gray-100 pb-4 sm:pb-6">
+          <h2 className="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2 sm:gap-3 gap-y-1">
+            {t('analysis.title')}
+            <span className="text-xs sm:text-sm font-normal text-gray-400">{t('analysis.date', { date: formattedDate })}</span>
           </h2>
           <button
             onClick={onNext}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-sm font-semibold hover:bg-[#1D4ED8] transition-colors shadow-lg shadow-blue-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] text-white rounded-xl text-sm font-semibold hover:bg-[#1D4ED8] transition-colors shadow-lg shadow-blue-200 w-full sm:w-auto justify-center"
           >
-            Перейти к заявке
+            {t('analysis.cta')}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -217,7 +228,7 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
           <FomoBlock value={fomoValue} />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

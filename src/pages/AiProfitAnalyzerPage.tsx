@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import StepProgress from '../components/wizard/StepProgress';
 import StepWelcome from '../components/wizard/StepWelcome';
 import StepInput from '../components/wizard/StepInput';
@@ -21,6 +22,7 @@ const initialLead: LeadPayload = {
 };
 
 const AiProfitAnalyzerPage: React.FC = () => {
+  const { t } = useTranslation();
   const [step, setStep] = useState<WizardStep>('welcome');
   const [productUrl, setProductUrl] = useState('');
   const [shopName, setShopName] = useState('');
@@ -45,11 +47,11 @@ const AiProfitAnalyzerPage: React.FC = () => {
       const result = await analyzeKaspi({ productUrl, shopName });
       setAnalysis(result);
     } catch (err: any) {
-      setAnalysisError(err.message || 'Не удалось выполнить анализ');
+      setAnalysisError(err.message || t('errors.analyzeFailed'));
     } finally {
       setAnalysisLoading(false);
     }
-  }, [productUrl, shopName]);
+  }, [productUrl, shopName, t]);
 
   const handleInputNext = (url: string, shop: string) => {
     setProductUrl(url);
@@ -74,7 +76,7 @@ const AiProfitAnalyzerPage: React.FC = () => {
       await submitLead(payload);
       setLeadSuccess(true);
     } catch (err: any) {
-      setLeadError(err.message || 'Не удалось отправить заявку');
+      setLeadError(err.message || t('errors.leadFailed'));
     } finally {
       setLeadSubmitting(false);
     }
@@ -96,7 +98,7 @@ const AiProfitAnalyzerPage: React.FC = () => {
   return (
     <div className="min-h-screen">
       <StepProgress current={progressStep} />
-      <div className="max-w-[1280px] mx-auto px-4 py-10 md:py-16">
+      <div className="max-w-[1280px] mx-auto px-4 pt-6 sm:pt-10 pb-10 md:py-16">
         <AnimatePresence mode="wait">
           {step === 'welcome' && (
             <motion.div
@@ -181,9 +183,9 @@ const AiProfitAnalyzerPage: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      <footer className="mt-12 md:mt-20 pt-12 border-t border-gray-100 text-center">
+      <footer className="mt-8 sm:mt-12 md:mt-20 pt-8 sm:pt-12 border-t border-gray-100 text-center px-4">
         <p className="text-sm text-gray-400">
-          © 2026 SaleScout — Экосистема для селлеров №1. Все права защищены.
+          {t('footer.text')}
         </p>
       </footer>
     </div>

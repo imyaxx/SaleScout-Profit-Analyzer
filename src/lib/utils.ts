@@ -2,6 +2,8 @@
 /**
  * Combines tailwind classes conditionally
  */
+import i18next from 'i18next';
+
 export function cn(...inputs: (string | undefined | null | boolean | Record<string, boolean>)[]) {
   return inputs
     .filter(Boolean)
@@ -21,10 +23,13 @@ export function cn(...inputs: (string | undefined | null | boolean | Record<stri
  * Formats numbers into currency strings (KZT)
  */
 export function formatMoney(amount: number, currency: string = '₸'): string {
-  return new Intl.NumberFormat('ru-RU', {
+  const locale = 'ru-RU';
+
+  return new Intl.NumberFormat(locale, {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
+    useGrouping: true
   }).format(amount) + ` ${currency}`;
 }
 

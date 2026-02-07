@@ -14,6 +14,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { Award } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn, formatMoney } from "../../lib/utils";
 import { MiniSellerRankingRenderItem } from "../../lib/miniSellerRanking";
 import sellersBg from "../../assets/sellers-bg.png";
@@ -67,8 +68,13 @@ function useAnimatedRanking(renderList: MiniSellerRankingRenderItem[]) {
     return Math.min(...topItems.map((i) => i.price));
   }, [renderList]);
 
+  const isAlreadyFirst = useMemo(() => {
+    if (!userItem) return false;
+    return userItem.price <= leaderPrice || leaderPrice === 0;
+  }, [userItem, leaderPrice]);
+
   const animatedList = useMemo(() => {
-    if (!userItem || !isPromoted) return renderList;
+    if (!userItem || !isPromoted || isAlreadyFirst) return renderList;
 
     const promotedPrice = leaderPrice - 1;
     const promotedUser: MiniSellerRankingRenderItem = {
@@ -78,7 +84,7 @@ function useAnimatedRanking(renderList: MiniSellerRankingRenderItem[]) {
 
     const others = renderList.filter((i) => i.type !== "user");
     return [promotedUser, ...others];
-  }, [renderList, userItem, isPromoted, leaderPrice]);
+  }, [renderList, userItem, isPromoted, isAlreadyFirst, leaderPrice]);
 
   const startCycle = useCallback(() => {
     clearTimeout(timerRef.current);
@@ -93,51 +99,52 @@ function useAnimatedRanking(renderList: MiniSellerRankingRenderItem[]) {
   }, []);
 
   useEffect(() => {
-    if (!userItem) return;
+    if (!userItem || isAlreadyFirst) return;
     startCycle();
     return () => clearTimeout(timerRef.current);
-  }, [userItem, startCycle]);
+  }, [userItem, isAlreadyFirst, startCycle]);
 
   return animatedList;
 }
 
 const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const animatedList = useAnimatedRanking(renderList);
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-sm">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
           <p className="text-xs uppercase font-semibold text-gray-400">
-            Позиция на Kaspi
+            {t("analysis.ranking.kicker")}
           </p>
-          <h3 className="text-xl font-bold text-gray-900 mt-1 drop-shadow-sm">
-            Ваш магазин с SaleScout
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mt-1 drop-shadow-sm">
+            {t("analysis.ranking.title")}
           </h3>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
           <Award size={18} />
         </div>
       </div>
 
-      <div className="relative flex justify-center">
+      <div className="relative mx-auto max-w-[280px]">
         {/* Phone background image */}
         <img
           src={sellersBg}
           alt=""
-          className="w-full max-w-[280px] h-auto select-none pointer-events-none"
+          className="w-full h-auto select-none pointer-events-none"
           draggable={false}
         />
         {/* Seller list overlay positioned inside the phone screen area */}
-        <div className="absolute inset-0 flex justify-center">
+        <div className="absolute inset-0">
           <div
-            className="w-full max-w-[280px] overflow-hidden flex flex-col"
+            className="w-full overflow-hidden flex flex-col"
             style={{
-              paddingTop: "45%",
+              paddingTop: "58%",
               paddingBottom: "14%",
-              paddingLeft: "7%",
-              paddingRight: "7%",
+              paddingLeft: "8%",
+              paddingRight: "8%",
             }}
           >
             <motion.div

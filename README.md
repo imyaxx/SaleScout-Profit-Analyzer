@@ -11,6 +11,7 @@
 - Tailwind CSS через CDN (в `index.html`)
 - framer-motion
 - lucide-react
+- i18next + react-i18next (RU/KZ/EN)
 
 **Backend**
 
@@ -41,6 +42,7 @@
 ├─ src/
 │  ├─ App.tsx                        # Корневой компонент с навбаром
 │  ├─ index.tsx                      # Точка входа React
+│  ├─ i18n.ts                        # Инициализация i18next (RU/KZ/EN)
 │  ├─ types.ts                       # TypeScript‑интерфейсы (AnalyzeRequest, KaspiAnalysis, LeadPayload)
 │  ├─ assets/
 │  │  └─ sellers-bg.png              # Фон телефона для мини‑рейтинга
@@ -132,6 +134,10 @@ npm run dev:api
 - Мини‑рейтинг продавцов с reorder‑анимацией
 - Симулятор цены без запроса к серверу
 - Таймер актуальности
+
+## Локализация
+
+- Сайт поддерживает 3 языка: русский (по умолчанию), казахский и английский.
 
 ## Важно
 

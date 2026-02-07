@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 export type Top5Seller = {
   rank: number;
   name: string;
@@ -24,6 +26,10 @@ export type MiniSellerRankingRenderItem = {
   subtitle: string;
   price: number;
   isHighlighted: boolean;
+};
+
+export type MiniSellerRankingLabels = {
+  userTitle: string;
 };
 
 const normalizeShopKey = (value: string) =>
@@ -70,7 +76,8 @@ export function computeSimulatedUser(
 export function buildMiniRating(
   top5Sellers: Top5Seller[],
   computedUser: ComputedUser | null | undefined,
-  userShopName: string
+  userShopName: string,
+  labels: MiniSellerRankingLabels = { userTitle: i18next.t('analysis.ranking.yourShop') }
 ): MiniSellerRankingRenderItem[] {
   const topSorted = Array.isArray(top5Sellers) ? [...top5Sellers] : [];
   topSorted.sort((a, b) => Number(a.rank) - Number(b.rank));
@@ -116,7 +123,7 @@ export function buildMiniRating(
     uniqueId: 'user',
     type: 'user',
     rankLabel: `#${userRank}`,
-    title: 'Ваш магазин',
+    title: labels.userTitle,
     subtitle: String(userShopName ?? ''),
     price: userPrice,
     isHighlighted: true

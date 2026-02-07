@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AnalysisTimerProps {
   initialSeconds?: number;
@@ -13,6 +14,7 @@ const formatTime = (seconds: number) => {
 };
 
 const AnalysisTimer: React.FC<AnalysisTimerProps> = ({ initialSeconds = 7 * 60 + 32 }) => {
+  const { t } = useTranslation();
   const [seconds, setSeconds] = useState(initialSeconds);
 
   useEffect(() => {
@@ -26,11 +28,12 @@ const AnalysisTimer: React.FC<AnalysisTimerProps> = ({ initialSeconds = 7 * 60 +
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-3 text-sm text-gray-500 bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm"
+      className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 bg-white border border-gray-100 rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm"
     >
-      <Clock size={16} className="text-blue-500" />
+      <Clock size={16} className="text-blue-500 flex-shrink-0" />
       <span>
-        Этот анализ актуален ещё <span className="font-semibold text-gray-900">{formatTime(seconds)}</span>
+        {t('analysis.timer.prefix')}{' '}
+        <span className="font-semibold text-gray-900">{formatTime(seconds)}</span>
       </span>
     </motion.div>
   );

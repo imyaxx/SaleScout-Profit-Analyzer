@@ -8,7 +8,6 @@ import ProfitChart from './ProfitChart';
 import FomoBlock from './FomoBlock';
 import PositionRanking from './PositionRanking';
 import PriceSimulator from './PriceSimulator';
-import AnalysisTimer from './AnalysisTimer';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import { buildMiniRating, computeSimulatedUser, UserShopBase } from '../../lib/miniSellerRanking';
 import { useThrottledValue } from '../../hooks/useThrottledValue';
@@ -82,7 +81,8 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
   );
 
   const simulatedPrice = simulatedMetrics?.price ?? basePrice;
-  const simulatedPosition = simulatedMetrics?.rank ?? basePosition;
+  const rawPosition = simulatedMetrics?.rank ?? basePosition;
+  const simulatedPosition = (leaderPrice > 0 && simulatedPrice <= leaderPrice) ? 1 : rawPosition;
   const priceToTop1 = simulatedPrice - leaderPrice;
 
   const chartData = useMemo(() => {
@@ -233,6 +233,7 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
+            className="h-full"
           >
             <PriceSimulator
               percent={rawPriceDropPercent}
@@ -240,6 +241,7 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
               basePrice={basePrice}
               simulatedPrice={simulatedPrice}
               leaderPrice={leaderPrice}
+              leaderShop={safeString(effectiveAnalysis.leaderShop, t('analysis.unknownSeller'))}
               position={simulatedPosition}
               priceToTop1={priceToTop1}
               profitLow={profitLow}
@@ -247,20 +249,14 @@ const StepAnalysis: React.FC<StepAnalysisProps> = ({ analysis, isLoading, error,
             />
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="h-full">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="h-full"
             >
               <PositionRanking renderList={rankingRenderList} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-            >
-              <AnalysisTimer />
             </motion.div>
           </div>
         </div>

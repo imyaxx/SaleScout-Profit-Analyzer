@@ -82,15 +82,14 @@ const resources = {
           toTop1: 'До ТОП-1: {{price}}',
           profit: 'Прогноз прибыли',
           model: 'Модель учитывает спрос и положение в выдаче при изменении цены',
-          leader: 'Лидер рынка сейчас: {{price}}'
+          leader: 'Лидер рынка сейчас: {{price}}',
+          leaderTitle: 'Лидер рынка',
+          leaderPriceLabel: 'Текущая цена лидера'
         },
         ranking: {
           kicker: 'Позиция на Kaspi',
           title: 'Ваш магазин с SaleScout',
           yourShop: 'Ваш магазин'
-        },
-        timer: {
-          prefix: 'Этот анализ актуален ещё'
         }
       },
       lead: {
@@ -216,15 +215,14 @@ const resources = {
           toTop1: 'ТОП-1-ге дейін: {{price}}',
           profit: 'Пайда болжамы',
           model: 'Баға өзгергенде модель сұраныс пен тізімдегі орынды ескереді',
-          leader: 'Қазір нарық көшбасшысының бағасы: {{price}}'
+          leader: 'Қазір нарық көшбасшысының бағасы: {{price}}',
+          leaderTitle: 'Нарық көшбасшысы',
+          leaderPriceLabel: 'Көшбасшының ағымдағы бағасы'
         },
         ranking: {
           kicker: 'Kaspi-дегі орын',
           title: 'SaleScout-пен сіздің дүкеніңіз',
           yourShop: 'Сіздің дүкеніңіз'
-        },
-        timer: {
-          prefix: 'Бұл талдау әлі де өзекті'
         }
       },
       lead: {
@@ -350,15 +348,14 @@ const resources = {
           toTop1: 'To Top-1: {{price}}',
           profit: 'Profit forecast',
           model: 'The model accounts for demand and ranking position when price changes',
-          leader: 'Market leader price now: {{price}}'
+          leader: 'Market leader price now: {{price}}',
+          leaderTitle: 'Market Leader',
+          leaderPriceLabel: 'Current leader price'
         },
         ranking: {
           kicker: 'Kaspi position',
           title: 'Your store with SaleScout',
           yourShop: 'Your store'
-        },
-        timer: {
-          prefix: 'This analysis is still valid for'
         }
       },
       lead: {

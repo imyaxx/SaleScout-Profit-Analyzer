@@ -113,7 +113,7 @@ const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
   const animatedList = useAnimatedRanking(renderList);
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-sm">
+    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
           <p className="text-xs uppercase font-semibold text-gray-400">
@@ -123,12 +123,12 @@ const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
             {t("analysis.ranking.title")}
           </h3>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
           <Award size={18} />
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-[280px]">
+      <div className="relative mx-auto max-w-[280px] flex-1 flex items-center">
         {/* Phone background image */}
         <img
           src={sellersBg}
@@ -179,7 +179,7 @@ const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
                       className={cn(
                         "flex items-center justify-between px-3 py-2 rounded-xl border",
                         item.isHighlighted
-                          ? "border-blue-200 bg-blue-50/80"
+                          ? "border-red-200 bg-red-50/80"
                           : "border-gray-100 bg-white/90",
                       )}
                     >
@@ -188,14 +188,14 @@ const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
                           className={cn(
                             "text-xs font-semibold truncate",
                             item.isHighlighted
-                              ? "text-blue-700"
+                              ? "text-red-600"
                               : "text-gray-900",
                           )}
                         >
                           {item.title}
                         </p>
                         {item.subtitle?.length ? (
-                          <p className="text-[10px] text-blue-500 truncate">
+                          <p className="text-[10px] text-red-400 truncate">
                             {item.subtitle}
                           </p>
                         ) : null}
@@ -204,7 +204,7 @@ const PositionRanking: React.FC<PositionRankingProps> = ({ renderList }) => {
                         className={cn(
                           "text-xs font-semibold whitespace-nowrap ml-1",
                           item.isHighlighted
-                            ? "text-blue-700"
+                            ? "text-red-600"
                             : "text-gray-600",
                         )}
                       >

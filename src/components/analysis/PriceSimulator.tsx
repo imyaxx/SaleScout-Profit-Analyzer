@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingDown, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { TrendingDown, ArrowDownRight, ArrowUpRight, Trophy, Store } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { cn, formatMoney } from '../../lib/utils';
@@ -11,6 +11,7 @@ interface PriceSimulatorProps {
   basePrice: number;
   simulatedPrice: number;
   leaderPrice: number;
+  leaderShop: string;
   position: number;
   priceToTop1: number;
   profitLow: number;
@@ -23,6 +24,7 @@ const PriceSimulator: React.FC<PriceSimulatorProps> = ({
   basePrice,
   simulatedPrice,
   leaderPrice,
+  leaderShop,
   position,
   priceToTop1,
   profitLow,
@@ -30,10 +32,10 @@ const PriceSimulator: React.FC<PriceSimulatorProps> = ({
 }) => {
   const { t } = useTranslation();
   const delta = simulatedPrice - basePrice;
-  const isTop1 = priceToTop1 <= 0;
+  const isTop1 = position === 1;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-sm">
+    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
           <p className="text-xs uppercase font-semibold text-gray-400">{t('analysis.simulator.kicker')}</p>
@@ -104,9 +106,64 @@ const PriceSimulator: React.FC<PriceSimulatorProps> = ({
         </div>
       </div>
 
-      <div className="mt-4 text-xs text-gray-400">
-        {t('analysis.simulator.leader', { price: formatMoney(leaderPrice) })}
-      </div>
+      {/* Market Leader Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mt-3 sm:mt-4"
+      >
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
+          {/* Header: icon + title */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+              <Store size={16} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] sm:text-xs uppercase font-semibold text-gray-400 tracking-wider">
+                {t('analysis.simulator.leaderTitle')}
+              </p>
+              <p className="text-sm sm:text-base font-bold text-gray-900 truncate">
+                {leaderShop}
+              </p>
+            </div>
+          </div>
+
+          {/* Price + delta */}
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-xs text-gray-400 font-medium">
+                {t('analysis.simulator.leaderPriceLabel')}
+              </p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">
+                <AnimatedNumber value={leaderPrice} format={formatMoney} />
+              </p>
+            </div>
+
+            {isTop1 ? (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-green-500 text-white text-xs font-semibold shadow-lg shadow-green-200/50"
+              >
+                <Trophy size={12} />
+                {t('analysis.simulator.top1')}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold shadow-lg shadow-blue-200/50"
+              >
+                <ArrowDownRight size={12} />
+                <AnimatedNumber value={Math.max(priceToTop1, 0)} format={(v) => `−${formatMoney(v)}`} />
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

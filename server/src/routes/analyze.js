@@ -1,8 +1,14 @@
+/**
+ * Роут POST /api/analyze
+ * Принимает ссылку на товар Kaspi + название магазина,
+ * возвращает результат анализа (позиция, цена лидера, разница цен).
+ */
 import express from 'express';
 import { analyzeKaspiProduct } from '../services/kaspiParser.js';
 
 const router = express.Router();
 
+/** Безопасно парсит URL; возвращает null при невалидной ссылке */
 function parseUrl(rawUrl) {
   try {
     const parsed = new URL(rawUrl);

@@ -1,9 +1,16 @@
+/**
+ * Роуты /api/records
+ * POST /parse  — только парсинг (без сохранения)
+ * POST /       — парсинг + сохранение записи в БД
+ * GET  /       — список последних 50 записей
+ */
 import express from 'express';
 import Record from '../models/Record.js';
 import { analyzeKaspiProduct } from '../services/kaspiParser.js';
 
 const router = express.Router();
 
+/** Безопасно парсит URL; возвращает null при невалидной ссылке */
 function parseUrl(rawUrl) {
   try {
     const parsed = new URL(rawUrl);
@@ -20,6 +27,7 @@ function parseUrl(rawUrl) {
   }
 }
 
+/** Только парсинг — без сохранения в БД (для превью) */
 router.post('/parse', async (req, res) => {
   try {
     const productUrl = String(req.body.productUrl ?? '').trim();
@@ -55,6 +63,7 @@ router.post('/parse', async (req, res) => {
   }
 });
 
+/** Парсинг + сохранение результата анализа в БД */
 router.post('/', async (req, res) => {
   try {
     const productUrl = String(req.body.productUrl ?? '').trim();
@@ -117,6 +126,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+/** Последние 50 записей (для истории анализов) */
 router.get('/', async (req, res) => {
   const items = await Record.find()
     .sort({ createdAt: -1 })

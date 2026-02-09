@@ -1,6 +1,10 @@
+/**
+ * Прогресс-бар визарда — 4 шага: Приветствие → Данные → Анализ → Заявка.
+ * Показывает текущий шаг синим, пройденные — зелёным.
+ */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '../../lib/utils';
+import { styles } from './StepProgress.styles';
 
 interface StepProgressProps {
   current: number;
@@ -16,44 +20,25 @@ const StepProgress: React.FC<StepProgressProps> = ({ current }) => {
   ];
 
   return (
-    <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-14 sm:top-16 md:top-20 z-40">
-      <div className="max-w-[1280px] mx-auto px-4 py-2.5 sm:py-4">
-        <div className="flex items-center">
+    <div className={styles.root}>
+      <div className={styles.inner}>
+        <div className={styles.row}>
           {steps.map((step, idx) => {
             const isCompleted = current > step.id;
             const isActive = current === step.id;
             return (
               <React.Fragment key={step.id}>
-                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                  <div
-                    className={cn(
-                      'w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border',
-                      isCompleted && 'bg-green-500 border-green-500 text-white',
-                      isActive && 'bg-blue-600 border-blue-600 text-white',
-                      !isCompleted && !isActive && 'bg-white border-gray-200 text-gray-400'
-                    )}
-                  >
+                <div className={styles.stepGroup}>
+                  <div className={styles.circle(isCompleted, isActive)}>
                     {step.id}
                   </div>
-                  <span
-                    className={cn(
-                      'text-sm font-semibold hidden sm:inline',
-                      isCompleted && 'text-green-600',
-                      isActive && 'text-gray-900',
-                      !isCompleted && !isActive && 'text-gray-400'
-                    )}
-                  >
+                  <span className={styles.label(isCompleted, isActive)}>
                     {step.label}
                   </span>
                 </div>
                 {idx < steps.length - 1 && (
-                  <div className="flex-1 mx-1.5 sm:mx-3">
-                    <div
-                      className={cn(
-                        'h-[2px] w-full',
-                        current > step.id ? 'bg-green-500' : 'bg-gray-200'
-                      )}
-                    />
+                  <div className={styles.connectorWrap}>
+                    <div className={styles.connector(isCompleted)} />
                   </div>
                 )}
               </React.Fragment>

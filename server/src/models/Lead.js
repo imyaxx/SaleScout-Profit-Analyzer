@@ -1,3 +1,7 @@
+/**
+ * Модель Lead — заявка от пользователя.
+ * Хранит контактные данные (имя, телефон, email) и описание запроса.
+ */
 import mongoose from 'mongoose';
 
 const leadSchema = new mongoose.Schema(

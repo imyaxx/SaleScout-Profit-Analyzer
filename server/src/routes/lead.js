@@ -1,8 +1,13 @@
+/**
+ * Роут POST /api/lead
+ * Принимает данные лид-формы, валидирует и сохраняет заявку в БД.
+ */
 import express from 'express';
 import Lead from '../models/Lead.js';
 
 const router = express.Router();
 
+/** Базовая проверка формата email */
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

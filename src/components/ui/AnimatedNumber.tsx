@@ -1,3 +1,7 @@
+/**
+ * Анимированное число — плавно переходит от старого значения к новому
+ * через requestAnimationFrame. Используется для цен и сумм.
+ */
 import React, { useEffect, useRef, useState } from 'react';
 
 interface AnimatedNumberProps {

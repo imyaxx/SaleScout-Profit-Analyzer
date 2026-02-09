@@ -1,112 +1,166 @@
 # SaleScout — AI Profit Analyzer
 
-Интерактивный продукт для продавцов на Kaspi: пользователь вводит ссылку на товар и название магазина, система через внутренний API Kaspi рассчитывает позицию, лучшую цену и разницу до ТОП‑1. Визуальный мастер из 4 шагов превращает анализ в эмоциональный AI‑дашборд и ведет к заявке.
+Интерактивный продукт для продавцов на Kaspi: пользователь вводит ссылку на товар и название магазина, система через внутренний API Kaspi рассчитывает позицию, лучшую цену и разницу до ТОП-1. Визуальный мастер из 4 шагов превращает анализ в эмоциональный AI-дашборд и ведет к заявке.
 
 ## Стек
 
 **Frontend**
 
-- React 19 + Vite
+- React 19 + Vite 6
 - TypeScript
-- Tailwind CSS через CDN (в `index.html`)
-- framer-motion
-- lucide-react
-- i18next + react-i18next (RU/KZ/EN)
+- Tailwind CSS (CDN)
+- Framer Motion
+- Lucide React
+- i18next + react-i18next (RU / KZ / EN)
 
 **Backend**
 
 - Node.js (ESM)
 - Express
-- MongoDB (mongoose)
+- MongoDB (Mongoose)
 
 ## Архитектура
 
-- Один роут на фронте, 4‑шаговый wizard:
+- Один роут на фронте, 4-шаговый wizard:
   1. Приветствие
-  2. Ввод данных
-     2.5. Подтверждение
-  3. Анализ (интерактивный AI‑дашборд)
-  4. Заявка
-- Бэкенд реализует:
-  - `/api/analyze` — анализ по Kaspi API
-  - `/api/lead` — сохранение заявки в MongoDB
+  2. Ввод данных (URL товара + название магазина)
+  3. Анализ (интерактивный AI-дашборд)
+  4. Заявка (лид-форма)
+- Бэкенд:
+  - `POST /api/analyze` — анализ по Kaspi API
+  - `POST /api/lead` — сохранение заявки в MongoDB
+  - `GET/POST /api/records` — записи анализов
 
 ## Структура проекта
 
 ```
 .
-├─ index.html
-├─ vite.config.ts
-├─ tsconfig.json
-├─ package.json
-├─ src/
-│  ├─ App.tsx                        # Корневой компонент с навбаром
-│  ├─ index.tsx                      # Точка входа React
-│  ├─ i18n.ts                        # Инициализация i18next (RU/KZ/EN)
-│  ├─ types.ts                       # TypeScript‑интерфейсы (AnalyzeRequest, KaspiAnalysis, LeadPayload)
-│  ├─ assets/
-│  │  └─ sellers-bg.png              # Фон телефона для мини‑рейтинга
-│  ├─ components/
-│  │  ├─ ui/                         # Переиспользуемые UI‑компоненты
-│  │  │  ├─ States.tsx               #   LoadingState / ErrorState
-│  │  │  ├─ ErrorBoundary.tsx        #   React Error Boundary
-│  │  │  └─ AnimatedNumber.tsx       #   Анимация числовых значений
-│  │  ├─ wizard/                     # Шаги онбординг‑визарда
-│  │  │  ├─ StepProgress.tsx         #   Прогресс‑бар (4 шага)
-│  │  │  ├─ StepWelcome.tsx          #   Шаг 1 — приветствие
-│  │  │  ├─ StepInput.tsx            #   Шаг 2 — ввод URL + магазин
-│  │  │  ├─ StepConfirm.tsx          #   Шаг 2.5 — подтверждение
-│  │  │  └─ StepLeadForm.tsx         #   Шаг 4 — форма заявки
-│  │  └─ analysis/                   # Дашборд анализа (шаг 3)
-│  │     ├─ StepAnalysis.tsx         #   Оркестратор дашборда
-│  │     ├─ ProfitChart.tsx          #   SVG‑график прибыли
-│  │     ├─ FomoBlock.tsx            #   FOMO‑блок упущенной выгоды
-│  │     ├─ PriceSimulator.tsx       #   Симулятор цены (слайдер)
-│  │     └─ PositionRanking.tsx      #   Мини‑рейтинг продавцов
-│  ├─ hooks/
-│  │  └─ useThrottledValue.ts        # Хук для троттлинга значений
-│  ├─ lib/
-│  │  ├─ onboardingClient.ts         # API‑клиент (analyzeKaspi, submitLead)
-│  │  ├─ utils.ts                    # Утилиты (cn, formatMoney, и др.)
-│  │  └─ miniSellerRanking.ts        # Логика мини‑рейтинга продавцов
-│  └─ pages/
-│     └─ AiProfitAnalyzerPage.tsx    # Главная страница — состояние визарда
-└─ server/
-   ├─ package.json
-   ├─ .env.example
-   └─ src/
-      ├─ index.js                    # Express + MongoDB подключение
-      ├─ models/
-      │  ├─ Lead.js                  # Модель заявки
-      │  └─ Record.js               # Модель записи анализа
-      ├─ routes/
-      │  ├─ analyze.js               # POST /api/analyze
-      │  ├─ lead.js                  # POST /api/lead
-      │  └─ records.js               # GET/POST /api/records
-      └─ services/
-         └─ kaspiParser.js           # Интеграция с Kaspi API
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── src/
+│   ├── App.tsx                              # Корневой компонент (навбар + язык)
+│   ├── App.styles.ts                        # Стили для App
+│   ├── index.tsx                            # Точка входа React
+│   ├── types.ts                             # TypeScript-интерфейсы
+│   │
+│   ├── styles/
+│   │   ├── global.css                       # CSS custom properties, keyframes, base
+│   │   └── shared.ts                        # Общие Tailwind class-строки (card, btn, input)
+│   │
+│   ├── constants/
+│   │   ├── app.ts                           # Polling interval, задержки анимаций
+│   │   ├── chart.ts                         # SVG-график: размеры, цвета
+│   │   ├── analysis.ts                      # Расчёты: margin, boost, growth rates
+│   │   └── demo.ts                          # Демо-данные
+│   │
+│   ├── i18n/
+│   │   ├── index.ts                         # Конфигурация i18next
+│   │   └── locales/
+│   │       ├── ru.ts                        # Русский
+│   │       ├── kk.ts                        # Казахский
+│   │       └── en.ts                        # Английский
+│   │
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── AnimatedNumber.tsx           # Анимация числовых значений
+│   │   │   ├── ErrorBoundary.tsx            # React Error Boundary
+│   │   │   ├── FormField.tsx                # Переиспользуемое поле формы
+│   │   │   ├── FormField.styles.ts
+│   │   │   ├── States.tsx                   # LoadingState / ErrorState
+│   │   │   └── States.styles.ts
+│   │   │
+│   │   ├── wizard/
+│   │   │   ├── StepProgress.tsx             # Прогресс-бар (4 шага)
+│   │   │   ├── StepProgress.styles.ts
+│   │   │   ├── StepWelcome.tsx              # Шаг 1 — приветствие
+│   │   │   ├── StepWelcome.styles.ts
+│   │   │   ├── StepInput.tsx                # Шаг 2 — ввод URL + магазин
+│   │   │   ├── StepInput.styles.ts
+│   │   │   ├── StepLeadForm.tsx             # Шаг 4 — форма заявки
+│   │   │   └── StepLeadForm.styles.ts
+│   │   │
+│   │   └── analysis/
+│   │       ├── StepAnalysis.tsx             # Оркестратор дашборда
+│   │       ├── StepAnalysis.styles.ts
+│   │       ├── ProfitChart.tsx              # SVG-график прибыли
+│   │       ├── ProfitChart.styles.ts
+│   │       ├── FomoBlock.tsx                # FOMO-блок упущенной выгоды
+│   │       ├── FomoBlock.styles.ts
+│   │       ├── PriceSimulator.tsx           # Симулятор цены
+│   │       ├── PriceSimulator.styles.ts
+│   │       ├── PositionRanking.tsx          # Мини-рейтинг продавцов
+│   │       └── PositionRanking.styles.ts
+│   │
+│   ├── hooks/
+│   │   ├── useThrottledValue.ts             # Троттлинг значений
+│   │   └── usePolling.ts                    # Авто-обновление данных
+│   │
+│   ├── lib/
+│   │   ├── onboardingClient.ts              # API-клиент (analyzeKaspi, submitLead)
+│   │   ├── utils.ts                         # Утилиты (cn, formatMoney)
+│   │   └── miniSellerRanking.ts             # Логика мини-рейтинга продавцов
+│   │
+│   ├── pages/
+│   │   ├── AiProfitAnalyzerPage.tsx         # Главная страница — состояние визарда
+│   │   └── AiProfitAnalyzerPage.styles.ts
+│   │
+│   └── assets/
+│       ├── sellers-bg.png                   # Фон телефона для мини-рейтинга
+│       └── Logo_of_Kaspi_bank.png           # Логотип Kaspi
+│
+└── server/
+    ├── package.json
+    ├── .env.example
+    └── src/
+        ├── index.js                         # Express + MongoDB
+        ├── models/
+        │   ├── Lead.js                      # Модель заявки
+        │   └── Record.js                    # Модель записи анализа
+        ├── routes/
+        │   ├── analyze.js                   # POST /api/analyze
+        │   ├── lead.js                      # POST /api/lead
+        │   └── records.js                   # GET/POST /api/records
+        └── services/
+            └── kaspiParser.js               # Интеграция с Kaspi API
 ```
 
-**Ключевые зоны**
+### Паттерн стилей
 
-| Папка | Назначение |
-|-------|-----------|
-| `src/components/ui/` | Переиспользуемые UI‑компоненты (состояния загрузки, анимации, error boundary) |
-| `src/components/wizard/` | Шаги онбординг‑визарда (приветствие, ввод, подтверждение, заявка) |
-| `src/components/analysis/` | Дашборд анализа: график, FOMO, симулятор цены, рейтинг |
-| `src/hooks/` | Пользовательские хуки (`useThrottledValue`) |
-| `src/lib/` | Бизнес‑логика, API‑клиент и утилиты |
-| `src/pages/` | Страницы приложения (управление состоянием визарда) |
-| `server/src/` | API, интеграция с Kaspi и сохранение лидов |
+Каждый компонент имеет co-located `.styles.ts` файл:
+
+```ts
+// Component.styles.ts
+import { shared } from '@/styles/shared';
+import { cn } from '@/lib/utils';
+
+export const styles = {
+  root: cn(shared.card, 'p-4'),
+  title: 'text-xl font-bold',
+};
+
+export const animations = { ... };
+```
+
+```tsx
+// Component.tsx
+import { styles, animations } from './Component.styles';
+<div className={styles.root}>...</div>
+```
 
 ## Переменные окружения (Backend)
 
 Создайте `server/.env`:
 
 ```
-MONGODB_URI=your_mongodb_uri
+MONGODB_URI=mongodb://127.0.0.1:27017/salescout
 PORT=4000
 CORS_ORIGIN=http://localhost:3000
+PROXY_SERVER=http://proxy-host:proxy-port
+PROXY_USERNAME=username
+PROXY_PASSWORD=password
+PROXY_URLS=http://user:pass@proxy-host:proxy-port
 ```
 
 ## Запуск
@@ -127,18 +181,19 @@ npm run dev:api
 
 ## Что умеет Step 3 (анализ)
 
-- Реальный API Kaspi (без HTML‑парсинга и браузерных парсеров)
-- SVG‑график роста прибыли с анимацией линий и точек
-- FOMO‑блок "упущенной выгоды"
-- Мини‑рейтинг продавцов с reorder‑анимацией
+- Реальный API Kaspi (без HTML-парсинга и браузерных парсеров)
+- SVG-график роста прибыли с анимацией линий и точек
+- FOMO-блок "упущенной выгоды"
+- Мини-рейтинг продавцов с reorder-анимацией и конкурентным shuffle
 - Симулятор цены без запроса к серверу
+- Авто-обновление данных каждые 15 секунд
 
 ## Локализация
 
-- Сайт поддерживает 3 языка: русский (по умолчанию), казахский и английский.
+Сайт поддерживает 3 языка: русский (по умолчанию), казахский и английский. Переводы хранятся в отдельных файлах `src/i18n/locales/`.
 
 ## Важно
 
 - Проект работает **только с kaspi.kz**
 - Для других маркетплейсов возвращается корректная ошибка
-- Внешние UI‑библиотеки не используются
+- Внешние UI-библиотеки не используются

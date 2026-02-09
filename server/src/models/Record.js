@@ -1,3 +1,7 @@
+/**
+ * Модель Record — результат анализа товара.
+ * Хранит URL товара, цены лидера и пользователя, список офферов конкурентов.
+ */
 import mongoose from 'mongoose';
 
 const recordSchema = new mongoose.Schema(

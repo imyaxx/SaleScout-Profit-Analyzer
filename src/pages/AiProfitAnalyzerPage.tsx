@@ -1,17 +1,26 @@
-import React, { useCallback, useState } from 'react';
+/**
+ * Главная страница — визард из 4 шагов:
+ * 1. Welcome  — приветствие
+ * 2. Input    — ввод ссылки + магазина
+ * 3. Analysis — результат анализа (авто-обновление каждые 15 сек)
+ * 4. Lead     — лид-форма для заявки
+ */
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import StepProgress from '../components/wizard/StepProgress';
 import StepWelcome from '../components/wizard/StepWelcome';
 import StepInput from '../components/wizard/StepInput';
-import StepConfirm from '../components/wizard/StepConfirm';
 import StepAnalysis from '../components/analysis/StepAnalysis';
 import StepLeadForm from '../components/wizard/StepLeadForm';
 import { analyzeKaspi, submitLead } from '../lib/onboardingClient';
 import { KaspiAnalysis, LeadPayload } from '../types';
+import { usePolling } from '../hooks/usePolling';
+import { ANALYSIS_POLL_INTERVAL_MS } from '../constants/app';
+import { styles, animations } from './AiProfitAnalyzerPage.styles';
 
 
-type WizardStep = 'welcome' | 'input' | 'confirm' | 'analysis' | 'lead';
+type WizardStep = 'welcome' | 'input' | 'analysis' | 'lead';
 
 const initialLead: LeadPayload = {
   name: '',
@@ -53,17 +62,39 @@ const AiProfitAnalyzerPage: React.FC = () => {
     }
   }, [productUrl, shopName, t]);
 
+  const shouldRunAnalysis = useRef(false);
+
   const handleInputNext = (url: string, shop: string) => {
     setProductUrl(url);
     setShopName(shop);
     setLeadForm((prev) => ({ ...prev, shopName: shop }));
-    setStep('confirm');
+    shouldRunAnalysis.current = true;
+    setStep('analysis');
   };
 
-  const handleConfirm = () => {
-    setStep('analysis');
-    runAnalysis();
-  };
+  useEffect(() => {
+    if (step === 'analysis' && shouldRunAnalysis.current) {
+      shouldRunAnalysis.current = false;
+      runAnalysis();
+    }
+  }, [step, runAnalysis]);
+
+  const isRefreshingRef = useRef(false);
+
+  const refreshAnalysis = useCallback(async () => {
+    if (!productUrl || !shopName || !analysis || isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
+    try {
+      const result = await analyzeKaspi({ productUrl, shopName });
+      setAnalysis(result);
+    } catch {
+      // Silent fail — keep showing last successful data
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [productUrl, shopName, analysis]);
+
+  usePolling(refreshAnalysis, ANALYSIS_POLL_INTERVAL_MS, step === 'analysis' && analysis !== null);
 
   const handleGoLead = () => {
     setStep('lead');
@@ -96,28 +127,18 @@ const AiProfitAnalyzerPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className={styles.root}>
       <StepProgress current={progressStep} />
-      <div className="max-w-[1280px] mx-auto px-4 pt-6 sm:pt-10 pb-10 md:py-16">
+      <div className={styles.content}>
         <AnimatePresence mode="wait">
           {step === 'welcome' && (
-            <motion.div
-              key="welcome"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div key="welcome" {...animations.stepTransition}>
               <StepWelcome onNext={() => setStep('input')} />
             </motion.div>
           )}
 
           {step === 'input' && (
-            <motion.div
-              key="input"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div key="input" {...animations.stepTransition}>
               <StepInput
                 initialUrl={productUrl}
                 initialShop={shopName}
@@ -127,29 +148,8 @@ const AiProfitAnalyzerPage: React.FC = () => {
             </motion.div>
           )}
 
-          {step === 'confirm' && (
-            <motion.div
-              key="confirm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              <StepConfirm
-                url={productUrl}
-                shopName={shopName}
-                onBack={() => setStep('input')}
-                onConfirm={handleConfirm}
-              />
-            </motion.div>
-          )}
-
           {step === 'analysis' && (
-            <motion.div
-              key="analysis"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div key="analysis" {...animations.stepTransition}>
               <StepAnalysis
                 analysis={analysis}
                 isLoading={analysisLoading}
@@ -157,17 +157,13 @@ const AiProfitAnalyzerPage: React.FC = () => {
                 shopName={shopName}
                 onRetry={runAnalysis}
                 onNext={handleGoLead}
+                onBack={() => setStep('input')}
               />
             </motion.div>
           )}
 
           {step === 'lead' && (
-            <motion.div
-              key="lead"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div key="lead" {...animations.stepTransition}>
               <StepLeadForm
                 values={leadForm}
                 onChange={(next) => setLeadForm((prev) => ({ ...prev, ...next }))}
@@ -183,8 +179,8 @@ const AiProfitAnalyzerPage: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      <footer className="mt-8 sm:mt-12 md:mt-20 pt-8 sm:pt-12 border-t border-gray-100 text-center px-4">
-        <p className="text-sm text-gray-400">
+      <footer className={styles.footer}>
+        <p className={styles.footerText}>
           {t('footer.text')}
         </p>
       </footer>

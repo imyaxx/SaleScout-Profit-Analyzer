@@ -1,3 +1,8 @@
+/**
+ * API-клиент фронтенда.
+ * analyzeKaspi — POST /api/analyze (запуск анализа товара)
+ * submitLead  — POST /api/lead    (отправка заявки)
+ */
 import i18next from 'i18next';
 import { AnalyzeRequest, KaspiAnalysis, LeadPayload } from '../types';
 

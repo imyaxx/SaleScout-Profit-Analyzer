@@ -1,23 +1,26 @@
+/**
+ * Интерактивный SVG-график прибыли за 30 дней.
+ * Две линии: текущая стратегия (серая) и с SaleScout (синяя).
+ * Hover по точкам показывает значения в карточках сверху.
+ */
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { formatMoney, cn } from '../../lib/utils';
+import { CHART, CHART_COLORS } from '../../constants/chart';
+import { styles, animations } from './ProfitChart.styles';
 
 interface ProfitChartProps {
   currentSeries: number[];
   optimizedSeries: number[];
 }
 
-const CHART_WIDTH = 640;
-const CHART_HEIGHT = 260;
-const PADDING = 24;
-
 function buildPath(values: number[], maxValue: number) {
   return values
     .map((value, index) => {
-      const x = (index / (values.length - 1)) * (CHART_WIDTH - PADDING * 2) + PADDING;
-      const y = CHART_HEIGHT - PADDING - (value / maxValue) * (CHART_HEIGHT - PADDING * 2);
+      const x = (index / (values.length - 1)) * (CHART.WIDTH - CHART.PADDING * 2) + CHART.PADDING;
+      const y = CHART.HEIGHT - CHART.PADDING - (value / maxValue) * (CHART.HEIGHT - CHART.PADDING * 2);
       return `${x},${y}`;
     })
     .join(' ');
@@ -28,7 +31,7 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
   const [activeIndex, setActiveIndex] = useState(currentSeries.length - 1);
   const maxValue = useMemo(() => {
     const max = Math.max(...currentSeries, ...optimizedSeries);
-    return max * 1.1;
+    return max * CHART.MAX_VALUE_HEADROOM;
   }, [currentSeries, optimizedSeries]);
 
   const currentPoints = useMemo(() => buildPath(currentSeries, maxValue), [currentSeries, maxValue]);
@@ -39,8 +42,7 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
 
   const pointsIndexes = useMemo(() => {
     const indexes: number[] = [];
-    const step = 5;
-    for (let i = 0; i < currentSeries.length; i += step) {
+    for (let i = 0; i < currentSeries.length; i += CHART.POINT_STEP) {
       indexes.push(i);
     }
     if (!indexes.includes(currentSeries.length - 1)) {
@@ -53,50 +55,50 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
   const badgeList = Array.isArray(badges) ? (badges as string[]) : [];
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 p-4 sm:p-6 md:p-8 shadow-xl shadow-blue-900/5">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+    <div className={styles.root}>
+      <div className={styles.header}>
         <div>
-          <p className="text-xs uppercase font-semibold text-gray-400">{t('analysis.profitChart.kicker')}</p>
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mt-1">
+          <p className={styles.kicker}>{t('analysis.profitChart.kicker')}</p>
+          <h3 className={styles.title}>
             {t('analysis.profitChart.title')}
           </h3>
         </div>
-        <div className="flex flex-wrap gap-2 sm:gap-4">
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex-1 min-w-0">
-            <p className="text-[10px] sm:text-xs text-gray-400 font-semibold uppercase truncate">{t('analysis.profitChart.current')}</p>
-            <p className="text-base sm:text-lg font-bold text-gray-700">
+        <div className={styles.statsRow}>
+          <div className={styles.statCardCurrent}>
+            <p className={cn(styles.statLabel, styles.statLabelCurrent)}>{t('analysis.profitChart.current')}</p>
+            <p className={cn(styles.statValue, styles.statValueCurrent)}>
               <AnimatedNumber value={activeCurrent} format={formatMoney} />
             </p>
           </div>
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 flex-1 min-w-0">
-            <p className="text-[10px] sm:text-xs text-blue-500 font-semibold uppercase truncate">{t('analysis.profitChart.withSalescout')}</p>
-            <p className="text-base sm:text-lg font-bold text-blue-700">
+          <div className={styles.statCardOptimized}>
+            <p className={cn(styles.statLabel, styles.statLabelOptimized)}>{t('analysis.profitChart.withSalescout')}</p>
+            <p className={cn(styles.statValue, styles.statValueOptimized)}>
               <AnimatedNumber value={activeOptimized} format={formatMoney} />
             </p>
           </div>
         </div>
       </div>
 
-      <div className="relative">
+      <div className={styles.chartWrap}>
         <svg
-          viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-          className="w-full h-[180px] sm:h-[220px] md:h-[260px]"
+          viewBox={`0 0 ${CHART.WIDTH} ${CHART.HEIGHT}`}
+          className={styles.svg}
         >
           <defs>
             <linearGradient id="salescoutLine" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#2563EB" />
-              <stop offset="100%" stopColor="#4F46E5" />
+              <stop offset="0%" stopColor={CHART_COLORS.gradientStart} />
+              <stop offset="100%" stopColor={CHART_COLORS.gradientEnd} />
             </linearGradient>
           </defs>
           <g>
-            {[0.25, 0.5, 0.75, 1].map((ratio, idx) => (
+            {CHART.GRID_LINES.map((ratio, idx) => (
               <line
                 key={idx}
-                x1={PADDING}
-                x2={CHART_WIDTH - PADDING}
-                y1={CHART_HEIGHT - PADDING - ratio * (CHART_HEIGHT - PADDING * 2)}
-                y2={CHART_HEIGHT - PADDING - ratio * (CHART_HEIGHT - PADDING * 2)}
-                stroke="#EEF2F7"
+                x1={CHART.PADDING}
+                x2={CHART.WIDTH - CHART.PADDING}
+                y1={CHART.HEIGHT - CHART.PADDING - ratio * (CHART.HEIGHT - CHART.PADDING * 2)}
+                y2={CHART.HEIGHT - CHART.PADDING - ratio * (CHART.HEIGHT - CHART.PADDING * 2)}
+                stroke={CHART_COLORS.gridLine}
                 strokeWidth="1"
               />
             ))}
@@ -105,38 +107,34 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
           <motion.polyline
             points={currentPoints}
             fill="none"
-            stroke="#C7CCD8"
-            strokeWidth="3"
+            stroke={CHART_COLORS.currentLine}
+            strokeWidth={CHART.CURRENT_STROKE_WIDTH}
             strokeLinejoin="round"
             strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.2, ease: 'easeInOut' }}
+            {...animations.currentLine}
           />
           <motion.polyline
             points={optimizedPoints}
             fill="none"
             stroke="url(#salescoutLine)"
-            strokeWidth="4"
+            strokeWidth={CHART.OPTIMIZED_STROKE_WIDTH}
             strokeLinejoin="round"
             strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.4, ease: 'easeInOut', delay: 0.1 }}
+            {...animations.optimizedLine}
           />
 
           {pointsIndexes.map((index) => {
-            const currentX = (index / (currentSeries.length - 1)) * (CHART_WIDTH - PADDING * 2) + PADDING;
-            const currentY = CHART_HEIGHT - PADDING - (currentSeries[index] / maxValue) * (CHART_HEIGHT - PADDING * 2);
-            const optimizedY = CHART_HEIGHT - PADDING - (optimizedSeries[index] / maxValue) * (CHART_HEIGHT - PADDING * 2);
+            const currentX = (index / (currentSeries.length - 1)) * (CHART.WIDTH - CHART.PADDING * 2) + CHART.PADDING;
+            const currentY = CHART.HEIGHT - CHART.PADDING - (currentSeries[index] / maxValue) * (CHART.HEIGHT - CHART.PADDING * 2);
+            const optimizedY = CHART.HEIGHT - CHART.PADDING - (optimizedSeries[index] / maxValue) * (CHART.HEIGHT - CHART.PADDING * 2);
 
             return (
               <g key={index}>
                 <motion.circle
                   cx={currentX}
                   cy={currentY}
-                  r={4}
-                  fill="#C7CCD8"
+                  r={CHART.CURRENT_DOT_RADIUS}
+                  fill={CHART_COLORS.currentDot}
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.02 }}
@@ -144,8 +142,8 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
                 <motion.circle
                   cx={currentX}
                   cy={optimizedY}
-                  r={6}
-                  fill="#2563EB"
+                  r={CHART.OPTIMIZED_DOT_RADIUS}
+                  fill={CHART_COLORS.optimizedDot}
                   className="cursor-pointer"
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -157,31 +155,27 @@ const ProfitChart: React.FC<ProfitChartProps> = ({ currentSeries, optimizedSerie
           })}
 
           <motion.circle
-            cx={(activeIndex / (currentSeries.length - 1)) * (CHART_WIDTH - PADDING * 2) + PADDING}
+            cx={(activeIndex / (currentSeries.length - 1)) * (CHART.WIDTH - CHART.PADDING * 2) + CHART.PADDING}
             cy={
-              CHART_HEIGHT -
-              PADDING -
-              (optimizedSeries[activeIndex] / maxValue) * (CHART_HEIGHT - PADDING * 2)
+              CHART.HEIGHT -
+              CHART.PADDING -
+              (optimizedSeries[activeIndex] / maxValue) * (CHART.HEIGHT - CHART.PADDING * 2)
             }
-            r={10}
-            fill="rgba(37, 99, 235, 0.2)"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity }}
+            r={CHART.ACTIVE_PULSE_RADIUS}
+            fill={CHART_COLORS.activePulse}
+            {...animations.pulse}
           />
         </svg>
 
-        <div className="flex items-center justify-between text-xs text-gray-400 px-2 -mt-2">
+        <div className={styles.axisRow}>
           <span>{t('analysis.profitChart.day', { day: 0 })}</span>
           <span>{t('analysis.profitChart.day', { day: 30 })}</span>
         </div>
       </div>
 
-      <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3 text-xs text-gray-500">
+      <div className={styles.badgeRow}>
         {badgeList.map((item) => (
-          <span
-            key={item}
-            className={cn('px-3 py-1 rounded-full border border-gray-100 bg-gray-50', 'text-gray-500')}
-          >
+          <span key={item} className={styles.badge}>
             {item}
           </span>
         ))}

@@ -1,3 +1,7 @@
+/**
+ * Хук useThrottledValue — throttle для значения.
+ * Обновляет выход не чаще чем раз в delayMs миллисекунд.
+ */
 import { useEffect, useRef, useState } from 'react';
 
 export const useThrottledValue = <T,>(value: T, delayMs: number) => {

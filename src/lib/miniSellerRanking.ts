@@ -1,5 +1,11 @@
+/**
+ * Логика мини-рейтинга продавцов.
+ * - computeSimulatedUser: рассчитывает новую позицию/цену при скидке
+ * - buildMiniRating: собирает список для рендера (топ-5 + пользователь)
+ */
 import i18next from 'i18next';
 
+/** Продавец из топ-5 */
 export type Top5Seller = {
   rank: number;
   name: string;

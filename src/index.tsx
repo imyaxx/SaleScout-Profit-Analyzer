@@ -1,7 +1,11 @@
-
+/**
+ * Точка входа React-приложения.
+ * Импорт i18n инициализирует мультиязычность до рендера.
+ */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './i18n';
+import './styles/global.css';
+import './i18n/index';
 import App from './App';
 
 const rootElement = document.getElementById('root');

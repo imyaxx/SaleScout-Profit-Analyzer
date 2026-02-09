@@ -2,8 +2,6 @@
 /**
  * Combines tailwind classes conditionally
  */
-import i18next from 'i18next';
-
 export function cn(...inputs: (string | undefined | null | boolean | Record<string, boolean>)[]) {
   return inputs
     .filter(Boolean)
@@ -31,32 +29,4 @@ export function formatMoney(amount: number, currency: string = '₸'): string {
     maximumFractionDigits: 0,
     useGrouping: true
   }).format(amount) + ` ${currency}`;
-}
-
-/**
- * Downloads a JSON file
- */
-export function downloadJson(data: any, filename: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-/**
- * Copies text to clipboard
- */
-export async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    console.error('Failed to copy text: ', err);
-    return false;
-  }
 }

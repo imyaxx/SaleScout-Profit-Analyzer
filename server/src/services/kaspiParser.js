@@ -1,13 +1,23 @@
-const CITY_ID_DEFAULT = '750000000';
-const LIMIT_DEFAULT = 5;
-const ZONE_ID_DEFAULT = ['Magnum_ZONE1'];
-const RETRY_COUNT = 3;
-const RETRY_DELAY_MS = 500;
-const REQUEST_TIMEOUT_MS = 15000;
+/**
+ * Парсер Kaspi.kz — ядро серверной логики.
+ * Обращается к внутреннему API Kaspi, собирает список продавцов товара,
+ * находит магазин пользователя и вычисляет позицию / разницу с лидером.
+ */
+
+// ─── Константы ────────────────────────────────────────
+const CITY_ID_DEFAULT = '750000000';       // Алматы по умолчанию
+const LIMIT_DEFAULT = 5;                   // Кол-во офферов на страницу
+const ZONE_ID_DEFAULT = ['Magnum_ZONE1'];  // Зона доставки
+const RETRY_COUNT = 3;                     // Макс. попыток при ошибке
+const RETRY_DELAY_MS = 500;                // Базовая задержка между попытками
+const REQUEST_TIMEOUT_MS = 15000;          // Таймаут одного запроса (15 сек)
 
 const KASPI_HOST = 'kaspi.kz';
 const KASPI_API_BASE = 'https://kaspi.kz/yml/offer-view/offers';
 
+// ─── Утилиты нормализации и извлечения данных ─────────
+
+/** Приводит название магазина к единому формату для сравнения */
 function normalizeShopName(value) {
   return String(value || '')
     .toLowerCase()
@@ -16,6 +26,7 @@ function normalizeShopName(value) {
     .trim();
 }
 
+/** Извлекает числовой productId из URL-пути товара */
 function extractProductIdFromPath(pathname) {
   if (!pathname) return null;
   const matches = String(pathname).match(/(\d{6,})/g);
@@ -23,6 +34,7 @@ function extractProductIdFromPath(pathname) {
   return matches[matches.length - 1];
 }
 
+/** Извлекает массив офферов из разных вариантов ответа API */
 function extractOffers(payload) {
   if (!payload || typeof payload !== 'object') return [];
   if (Array.isArray(payload.offers)) return payload.offers;
@@ -31,6 +43,7 @@ function extractOffers(payload) {
   return [];
 }
 
+/** Получает название продавца — пробует несколько полей (API нестабильный) */
 function extractOfferName(offer) {
   return (
     offer?.merchantName ||
@@ -41,6 +54,7 @@ function extractOfferName(offer) {
   );
 }
 
+/** Получает рейтинг продавца (0–5), округлённый до 1 знака */
 function extractOfferRating(offer) {
   const raw =
     offer?.merchantRating ??
@@ -57,6 +71,7 @@ function extractOfferRating(offer) {
     : null;
 }
 
+/** Получает количество отзывов продавца */
 function extractOfferReviewCount(offer) {
   const raw =
     offer?.merchantReviewsQuantity ??
@@ -72,6 +87,7 @@ function extractOfferReviewCount(offer) {
   return Number.isFinite(value) && value >= 0 ? Math.round(value) : null;
 }
 
+/** Получает цену оффера в тенге (только цифры) */
 function extractOfferPrice(offer) {
   const raw =
     offer?.price ??
@@ -92,6 +108,7 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** HTTP-запрос с ретраями и таймаутом */
 async function requestWithRetry(url, options) {
   let lastError = null;
 
@@ -124,6 +141,11 @@ async function requestWithRetry(url, options) {
   throw lastError || new Error('Kaspi request failed');
 }
 
+/**
+ * Главная функция — анализ товара на Kaspi.
+ * Постранично запрашивает офферы, ищет магазин пользователя,
+ * возвращает: лидера, позицию, разницу цен, список продавцов.
+ */
 export async function analyzeKaspiProduct(productUrl, myShopName) {
   if (!productUrl) {
     throw new Error('Введите ссылку на товар');
@@ -163,6 +185,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
   let myShopPosition = null;
   const offersMap = new Map();
 
+  // Постраничный обход всех продавцов товара
   let page = 0;
   let globalOffset = 0;
   while (true) {
@@ -202,6 +225,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
       break;
     }
 
+    // Первый оффер на первой странице — лидер рынка (сортировка по цене)
     if (page === 0) {
       const first = offers[0];
       leaderShop = extractOfferName(first);
@@ -263,6 +287,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
     };
   }
 
+  // Разница цены магазина пользователя и лидера
   const priceToTop1 = myShopPrice - leaderPrice;
 
   return {

@@ -1,3 +1,7 @@
+/**
+ * ErrorBoundary — перехватывает ошибки рендера дочерних компонентов.
+ * Показывает ErrorState с кнопкой «Попробовать снова».
+ */
 import React from 'react';
 import i18next from 'i18next';
 import { ErrorState } from './States';

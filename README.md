@@ -6,12 +6,13 @@
 
 **Frontend**
 
-- React 19 + Vite 6
-- TypeScript
-- Tailwind CSS (CDN)
+- React + Vite
+- JavaScript
+- CSS Modules
 - Framer Motion
 - Lucide React
 - i18next + react-i18next (RU / KZ / EN)
+- ESLint + Prettier
 
 **Backend**
 
@@ -36,118 +37,106 @@
 ```
 .
 ├── index.html
-├── vite.config.ts
-├── tsconfig.json
+├── vite.config.js
+├── eslint.config.js
+├── .prettierrc
 ├── package.json
-├── src/
-│   ├── App.tsx                              # Корневой компонент (навбар + язык)
-│   ├── App.styles.ts                        # Стили для App
-│   ├── index.tsx                            # Точка входа React
-│   ├── types.ts                             # TypeScript-интерфейсы
-│   │
-│   ├── styles/
-│   │   ├── global.css                       # CSS custom properties, keyframes, base
-│   │   └── shared.ts                        # Общие Tailwind class-строки (card, btn, input)
-│   │
-│   ├── constants/
-│   │   ├── app.ts                           # Polling interval, задержки анимаций
-│   │   ├── chart.ts                         # SVG-график: размеры, цвета
-│   │   ├── analysis.ts                      # Расчёты: margin, boost, growth rates
-│   │   └── demo.ts                          # Демо-данные
-│   │
-│   ├── i18n/
-│   │   ├── index.ts                         # Конфигурация i18next
-│   │   └── locales/
-│   │       ├── ru.ts                        # Русский
-│   │       ├── kk.ts                        # Казахский
-│   │       └── en.ts                        # Английский
-│   │
-│   ├── components/
-│   │   ├── ui/
-│   │   │   ├── AnimatedNumber.tsx           # Анимация числовых значений
-│   │   │   ├── ErrorBoundary.tsx            # React Error Boundary
-│   │   │   ├── FormField.tsx                # Переиспользуемое поле формы
-│   │   │   ├── FormField.styles.ts
-│   │   │   ├── States.tsx                   # LoadingState / ErrorState
-│   │   │   └── States.styles.ts
-│   │   │
-│   │   ├── wizard/
-│   │   │   ├── StepProgress.tsx             # Прогресс-бар (4 шага)
-│   │   │   ├── StepProgress.styles.ts
-│   │   │   ├── StepWelcome.tsx              # Шаг 1 — приветствие
-│   │   │   ├── StepWelcome.styles.ts
-│   │   │   ├── StepInput.tsx                # Шаг 2 — ввод URL + магазин
-│   │   │   ├── StepInput.styles.ts
-│   │   │   ├── StepLeadForm.tsx             # Шаг 4 — форма заявки
-│   │   │   └── StepLeadForm.styles.ts
-│   │   │
-│   │   └── analysis/
-│   │       ├── StepAnalysis.tsx             # Оркестратор дашборда
-│   │       ├── StepAnalysis.styles.ts
-│   │       ├── ProfitChart.tsx              # SVG-график прибыли
-│   │       ├── ProfitChart.styles.ts
-│   │       ├── FomoBlock.tsx                # FOMO-блок упущенной выгоды
-│   │       ├── FomoBlock.styles.ts
-│   │       ├── PriceSimulator.tsx           # Симулятор цены
-│   │       ├── PriceSimulator.styles.ts
-│   │       ├── PositionRanking.tsx          # Мини-рейтинг продавцов
-│   │       └── PositionRanking.styles.ts
-│   │
-│   ├── hooks/
-│   │   ├── useThrottledValue.ts             # Троттлинг значений
-│   │   └── usePolling.ts                    # Авто-обновление данных
-│   │
-│   ├── lib/
-│   │   ├── onboardingClient.ts              # API-клиент (analyzeKaspi, submitLead)
-│   │   ├── utils.ts                         # Утилиты (cn, formatMoney)
-│   │   └── miniSellerRanking.ts             # Логика мини-рейтинга продавцов
-│   │
-│   ├── pages/
-│   │   ├── AiProfitAnalyzerPage.tsx         # Главная страница — состояние визарда
-│   │   └── AiProfitAnalyzerPage.styles.ts
-│   │
-│   └── assets/
-│       ├── sellers-bg.png                   # Фон телефона для мини-рейтинга
-│       └── Logo_of_Kaspi_bank.png           # Логотип Kaspi
 │
-└── server/
-    ├── package.json
-    ├── .env.example
-    └── src/
-        ├── index.js                         # Express + MongoDB
-        ├── models/
-        │   ├── Lead.js                      # Модель заявки
-        │   └── Record.js                    # Модель записи анализа
-        ├── routes/
-        │   ├── analyze.js                   # POST /api/analyze
-        │   ├── lead.js                      # POST /api/lead
-        │   └── records.js                   # GET/POST /api/records
-        └── services/
-            └── kaspiParser.js               # Интеграция с Kaspi API
+└── src/
+    ├── app/
+    │   ├── main.jsx                          # Точка входа React
+    │   ├── App.jsx                           # Корневой компонент (навбар + язык)
+    │   └── App.module.css
+    │
+    ├── shared/
+    │   ├── styles/
+    │   │   ├── tokens.css                    # CSS custom properties (дизайн-токены)
+    │   │   └── globals.css                   # Reset, body, keyframes
+    │   │
+    │   ├── ui/
+    │   │   ├── AnimatedNumber/               # Анимация числовых значений
+    │   │   ├── ErrorBoundary/                # React Error Boundary
+    │   │   ├── FormField/                    # Переиспользуемое поле формы
+    │   │   └── States/                       # LoadingState / ErrorState
+    │   │
+    │   ├── i18n/
+    │   │   ├── i18n.js                       # Конфигурация i18next
+    │   │   └── locales/
+    │   │       ├── ru.json                   # Русский
+    │   │       ├── kz.json                   # Казахский
+    │   │       └── en.json                   # Английский
+    │   │
+    │   ├── lib/
+    │   │   ├── utils.js                      # Утилиты (cn, formatMoney)
+    │   │   ├── onboardingClient.js           # API-клиент (analyzeKaspi, submitLead)
+    │   │   └── miniSellerRanking.js          # Логика мини-рейтинга продавцов
+    │   │
+    │   ├── hooks/
+    │   │   └── usePolling.js                 # Авто-обновление данных
+    │   │
+    │   └── constants/
+    │       ├── app.js                        # Polling interval, задержки анимаций
+    │       ├── chart.js                      # SVG-график: размеры, цвета
+    │       ├── analysis.js                   # Расчёты: margin, boost, growth rates
+    │       └── demo.js                       # Фолбэк-данные
+    │
+    ├── features/
+    │   ├── wizard/
+    │   │   ├── StepWelcome/                  # Шаг 1 — приветствие
+    │   │   ├── StepInput/                    # Шаг 2 — ввод URL + магазин
+    │   │   ├── StepProgress/                 # Прогресс-бар (4 шага)
+    │   │   └── StepLeadForm/                 # Шаг 4 — форма заявки
+    │   │
+    │   └── analysis/
+    │       ├── StepAnalysis/                 # Оркестратор дашборда
+    │       ├── ProfitChart/                  # SVG-график прибыли
+    │       ├── FomoBlock/                    # FOMO-блок упущенной выгоды
+    │       ├── PriceSimulator/               # Симулятор цены
+    │       └── PositionRanking/              # Мини-рейтинг продавцов
+    │
+    ├── pages/
+    │   └── AiProfitAnalyzerPage/             # Главная страница — состояние визарда
+    │
+    └── assets/
+        ├── sellers-bg.png                    # Фон телефона для мини-рейтинга
+        └── Logo_of_Kaspi_bank.png            # Логотип Kaspi
+
+server/
+├── package.json
+├── .env.example
+└── src/
+    ├── index.js                              # Express + MongoDB
+    ├── models/
+    │   ├── Lead.js                           # Модель заявки
+    │   └── Record.js                         # Модель записи анализа
+    ├── routes/
+    │   ├── analyze.js                        # POST /api/analyze
+    │   ├── lead.js                           # POST /api/lead
+    │   └── records.js                        # GET/POST /api/records
+    └── services/
+        └── kaspiParser.js                    # Интеграция с Kaspi API
 ```
 
 ### Паттерн стилей
 
-Каждый компонент имеет co-located `.styles.ts` файл:
+Каждый компонент живёт в своей папке с CSS Module:
 
-```ts
-// Component.styles.ts
-import { shared } from '@/styles/shared';
-import { cn } from '@/lib/utils';
-
-export const styles = {
-  root: cn(shared.card, 'p-4'),
-  title: 'text-xl font-bold',
-};
-
-export const animations = { ... };
+```
+Component/
+├── Component.jsx
+├── Component.module.css
+└── index.js
 ```
 
-```tsx
-// Component.tsx
-import { styles, animations } from './Component.styles';
-<div className={styles.root}>...</div>
+```jsx
+// Component.jsx
+import { cn } from '@/shared/lib/utils';
+import s from './Component.module.css';
+
+<div className={cn(s.root, isActive && s.rootActive)}>...</div>;
 ```
+
+Дизайн-токены (цвета, радиусы, тени) определены в `tokens.css` как CSS custom properties и используются во всех `.module.css` файлах.
 
 ## Переменные окружения (Backend)
 
@@ -179,6 +168,16 @@ npm --prefix server install
 npm run dev:api
 ```
 
+## Скрипты
+
+```bash
+npm run dev        # Запуск dev-сервера (localhost:3000)
+npm run build      # Production-сборка
+npm run preview    # Предпросмотр production-сборки
+npm run lint       # ESLint
+npm run format     # Prettier
+```
+
 ## Что умеет Step 3 (анализ)
 
 - Реальный API Kaspi (без HTML-парсинга и браузерных парсеров)
@@ -190,7 +189,7 @@ npm run dev:api
 
 ## Локализация
 
-Сайт поддерживает 3 языка: русский (по умолчанию), казахский и английский. Переводы хранятся в отдельных файлах `src/i18n/locales/`.
+Сайт поддерживает 3 языка: русский (по умолчанию), казахский и английский. Переводы хранятся в JSON-файлах `src/shared/i18n/locales/`. Выбранный язык сохраняется в localStorage.
 
 ## Важно
 

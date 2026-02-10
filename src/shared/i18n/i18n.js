@@ -40,5 +40,4 @@ i18n.on('languageChanged', (lng) => {
   }
 });
 
-export const languageOptions = supportedLanguages;
 export default i18n;

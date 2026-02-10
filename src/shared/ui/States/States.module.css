@@ -1,0 +1,134 @@
+/* ── Loading skeleton ── */
+.loadingRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  animation: pulse 2s infinite;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.skeletonCard {
+  height: 6rem;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-2xl);
+}
+
+.skeletonTwoCol {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.skeletonHalf {
+  height: 12rem;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-2xl);
+}
+
+.skeletonFull {
+  height: 16rem;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-2xl);
+}
+
+/* ── Error state ── */
+.errorRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.errorIcon {
+  width: 4rem;
+  height: 4rem;
+  background: var(--color-red-50);
+  color: var(--color-red-500);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.errorTitle {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.errorMessage {
+  color: var(--color-gray-500);
+  margin-bottom: 2rem;
+  max-width: 28rem;
+}
+
+.retryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-brand-600);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: var(--shadow-lg), var(--shadow-blue);
+}
+.retryBtn:hover {
+  background: var(--color-brand-700);
+}
+
+@media (min-width: 640px) {
+  .loadingRoot {
+    gap: 2rem;
+    padding: 2rem 0;
+  }
+  .skeletonGrid {
+    gap: 1.5rem;
+  }
+  .skeletonCard {
+    height: 8rem;
+  }
+  .skeletonTwoCol {
+    gap: 2rem;
+  }
+  .skeletonHalf {
+    height: 16rem;
+  }
+  .skeletonFull {
+    height: 24rem;
+  }
+  .errorRoot {
+    padding: 5rem 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .skeletonTwoCol {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

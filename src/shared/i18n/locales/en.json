@@ -1,0 +1,135 @@
+{
+  "translation": {
+    "steps": {
+      "welcome": "Welcome",
+      "data": "Data",
+      "analysis": "Analysis",
+      "lead": "Request"
+    },
+    "welcome": {
+      "badge": "SaleScout AI Analysis",
+      "title": "Let\u2019s analyze your store\u2019s profit",
+      "subtitle": "See in 30 seconds how to reach Top-1 on Kaspi",
+      "cta": "Start analysis",
+      "card": {
+        "tag": "Fast track to Top-1",
+        "time": "~30 sec",
+        "currentPosition": "Current position",
+        "priceToTop": "Price to Top-1",
+        "ai": "AI recommendations",
+        "aiDesc": "Optimize price and description \u2014 sales up to 15%"
+      }
+    },
+    "input": {
+      "title": "Enter your data",
+      "subtitle": "Both fields are required for accurate analysis.",
+      "back": "Back",
+      "productLabel": "Product link",
+      "productPlaceholder": "https://kaspi.kz/shop/p/...",
+      "shopLabel": "Store name",
+      "shopPlaceholder": "Your Kaspi store",
+      "continue": "Continue",
+      "errors": {
+        "url": "The link must point to kaspi.kz",
+        "shop": "Enter a store name (min. 2 characters)"
+      }
+    },
+    "confirm": {
+      "title": "Confirm analysis",
+      "subtitle": "Check the details before starting.",
+      "product": "Product",
+      "shop": "Store",
+      "back": "Back",
+      "confirm": "Confirm"
+    },
+    "analysis": {
+      "title": "Product analysis result",
+      "date": "/ {{date}}",
+      "cta": "Proceed to request",
+      "error": "Analysis error",
+      "unknownSeller": "Unknown seller",
+      "profitChart": {
+        "kicker": "30-day profit forecast",
+        "title": "Sales growth with an interactive strategy",
+        "current": "Current strategy",
+        "withSalescout": "With SaleScout",
+        "day": "Day {{day}}",
+        "badges": [
+          "The chart adapts to price changes in real time",
+          "The scenario accounts for Kaspi dynamics"
+        ]
+      },
+      "fomo": {
+        "kicker": "Missed profit potential",
+        "title": "If you had started 7 days ago,",
+        "subtitle": "you would have earned extra:"
+      },
+      "simulator": {
+        "kicker": "Price analysis",
+        "title": "Your market position",
+        "drop": "Price drop",
+        "newPrice": "New price",
+        "decrease": "Decrease",
+        "increase": "Increase",
+        "noChange": "No change",
+        "relative": "relative to current price",
+        "position": "Position",
+        "top1": "You're in Top-1",
+        "toTop1": "To Top-1: {{price}}",
+        "profit": "Profit forecast",
+        "model": "The model accounts for demand and ranking position when price changes",
+        "leader": "Market leader price now: {{price}}",
+        "leaderTitle": "Market Leader",
+        "leaderPriceLabel": "Current leader price"
+      },
+      "ranking": {
+        "kicker": "Kaspi position",
+        "title": "Your store grows with SaleScout",
+        "yourShop": "Your store",
+        "reviews": "reviews",
+        "select": "Select"
+      }
+    },
+    "lead": {
+      "title": "Leave a request",
+      "subtitle": "Get a personalized audit and expert recommendations.",
+      "back": "Back",
+      "fields": {
+        "name": "Name",
+        "phone": "Phone",
+        "email": "Email",
+        "shop": "Kaspi store name",
+        "description": "Task description"
+      },
+      "placeholders": {
+        "name": "Your name",
+        "phone": "+7XXXXXXXXXX",
+        "email": "you@email.com",
+        "shop": "Your store name",
+        "description": "Briefly describe what you want to improve"
+      },
+      "errors": {
+        "name": "Enter your name (min. 2 characters)",
+        "phone": "Enter a number in +7XXXXXXXXXX format",
+        "email": "Enter a valid email",
+        "shop": "Enter a store name (min. 2 characters)",
+        "description": "Describe the task (min. 2 characters)"
+      },
+      "submit": "Submit request",
+      "submitting": "Sending...",
+      "successTitle": "Request sent, we'll contact you",
+      "successBody": "Our manager will prepare a personalized audit and contact you shortly.",
+      "newAnalysis": "New analysis"
+    },
+    "errors": {
+      "genericTitle": "Oops, something went wrong",
+      "retry": "Try again",
+      "analysisRender": "Analysis rendering error",
+      "analyzeFailed": "Failed to run analysis",
+      "leadFailed": "Failed to submit request"
+    },
+    "footer": {
+      "text": "\u00a9 2026 SaleScout \u2014 #1 ecosystem for sellers. All rights reserved."
+    }
+  }
+}

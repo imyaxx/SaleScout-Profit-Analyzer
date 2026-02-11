@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LoadingState, ErrorState } from '@/shared/ui/States';
 import ErrorBoundary from '@/shared/ui/ErrorBoundary';
 import PositionRanking from '@/features/analysis/PositionRanking';
+import StickyResult from '@/features/analysis/StickyResult';
 import { buildMiniRating, computeSimulatedUser } from '@/shared/lib/miniSellerRanking';
+import { formatMoney } from '@/shared/lib/utils';
 import { DEMO_ANALYSIS_DATA } from '@/shared/constants/demo';
 import s from './StepAnalysis.module.css';
 
@@ -70,6 +72,29 @@ const normalizeShopKey = (value) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/* ── Custom smooth scroll (rAF-based, ~320ms, easeOutCubic) ── */
+function smoothScrollTo(element, duration = 320) {
+  if (!element) return;
+  const scrollMargin = parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
+  const targetY = element.getBoundingClientRect().top + window.scrollY - scrollMargin;
+  const startY = window.scrollY;
+  const diff = targetY - startY;
+  if (Math.abs(diff) < 2) return;
+
+  let start = null;
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  function step(timestamp) {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+    const progress = Math.min(elapsed / duration, 1);
+    window.scrollTo(0, startY + diff * easeOutCubic(progress));
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
 export default function StepAnalysis({
   analysis,
   isLoading,
@@ -85,6 +110,25 @@ export default function StepAnalysis({
 
   const viewState = isLoading ? 'loading' : error ? 'error' : analysis ? 'success' : 'idle';
   const effectiveAnalysis = analysis ?? DEMO_ANALYSIS_DATA;
+
+  const resultRef = useRef(null);
+  const scrolledForRef = useRef(null); // tracks which analysis object we already scrolled for
+
+  /* ── Auto-scroll to result when success state appears ── */
+  useEffect(() => {
+    if (viewState !== 'success' || !analysis) return;
+    // Only scroll once per unique analysis result
+    if (scrolledForRef.current === analysis) return;
+    scrolledForRef.current = analysis;
+
+    // Delay to let Framer Motion entrance animation start & DOM settle
+    const id = setTimeout(() => {
+      requestAnimationFrame(() => {
+        smoothScrollTo(resultRef.current, 320);
+      });
+    }, 80);
+    return () => clearTimeout(id);
+  }, [viewState, analysis]);
 
   const top5Sellers = useMemo(() => {
     const offers = Array.isArray(effectiveAnalysis.offers) ? effectiveAnalysis.offers : [];
@@ -154,6 +198,15 @@ export default function StepAnalysis({
     [top5Sellers, baseComputedUser, shopName, i18n.language, t],
   );
 
+  /* ── Sticky result data ── */
+  const stickyRank = effectiveAnalysis.myShopPosition;
+  const stickyPrice = effectiveAnalysis.myShopPrice
+    ? formatMoney(toNumber(effectiveAnalysis.myShopPrice))
+    : null;
+  const leader = top5Sellers[0] ?? null;
+  const isLeader = toNumber(stickyRank) === 1;
+  const showSticky = viewState === 'success';
+
   if (viewState === 'loading') {
     return <LoadingState />;
   }
@@ -200,10 +253,26 @@ export default function StepAnalysis({
           </motion.div>
         </div>
 
-        <motion.div variants={v ?? rankingSectionVariant} className={s.rankingCenter}>
+        <motion.div
+          ref={resultRef}
+          variants={v ?? rankingSectionVariant}
+          className={s.rankingCenter}
+        >
           <PositionRanking renderList={rankingRenderList} />
         </motion.div>
+
+        {showSticky && <div className={s.bottomSpacer} />}
       </motion.div>
+
+      <StickyResult
+        storeName={shopName}
+        rank={stickyRank}
+        price={stickyPrice}
+        leaderName={leader?.name}
+        leaderPrice={leader ? formatMoney(leader.price) : null}
+        isLeader={isLeader}
+        visible={showSticky}
+      />
     </ErrorBoundary>
   );
 }

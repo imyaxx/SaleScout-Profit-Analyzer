@@ -16,7 +16,7 @@ const layoutTransition = {
 
 /* ── Timing ── */
 const JUMP_DELAY_MS = 600; // pause before user jumps to #1
-const SHUFFLE_STEP_MS = 4500; // how often a competitor changes price
+const SHUFFLE_STEP_MS = 2500; // how often a competitor changes price
 const SHUFFLE_START_DELAY_MS = 1500; // pause before shuffle begins after jump
 const PRICE_VARIATION_PCT = 0.02; // ±2% price swing for competitors
 
@@ -32,7 +32,7 @@ function pluralizeReviews(count, lang) {
 
 /* ── Animated price counter ── */
 function AnimatedPrice({ value, className }) {
-  const spring = useSpring(value, { stiffness: 80, damping: 20 });
+  const spring = useSpring(value, { stiffness: 300, damping: 30 });
   const [display, setDisplay] = useState(value);
 
   useEffect(() => {
@@ -96,46 +96,66 @@ function useRankingAnimation(renderList, reduceMotion) {
     return arr;
   };
 
-  // ── Jump to #1: user immediately gets leader price - 1 ──
+  // ── Jump to #1: user immediately gets leader price - 1, capped by real leader ──
   const jumpToFirst = useCallback(() => {
     setList((prev) => {
       if (!userItem) return prev;
       const minCompetitorPrice = Math.min(
         ...prev.filter((i) => i.type !== 'user').map((i) => i.price),
       );
+      const realLeaderPrice = basePricesRef.current.size
+        ? Math.min(...basePricesRef.current.values())
+        : minCompetitorPrice;
+      const userPrice = Math.min(minCompetitorPrice - 1, realLeaderPrice - 1);
       const next = prev.map((item) =>
-        item.type === 'user' ? { ...item, price: minCompetitorPrice - 1 } : item,
+        item.type === 'user' ? { ...item, price: userPrice } : item,
       );
       return sortWithUserFirst(next);
     });
   }, [userItem]);
 
-  // ── Shuffle logic: randomly change one competitor's price, keep user at #1 ──
+  // ── Shuffle logic: change 2 competitors' prices per tick, bias toward leader ──
   const shuffleStep = useCallback(() => {
     setList((prev) => {
       const competitors = prev.filter((i) => i.type !== 'user');
       if (competitors.length === 0) return prev;
 
-      // Pick a random competitor
-      const idx = Math.floor(Math.random() * competitors.length);
-      const target = competitors[idx];
-      const basePrice = basePricesRef.current.get(target.uniqueId) ?? target.price;
+      // Pick targets: 50% chance the cheapest competitor is one of them
+      const sorted = [...competitors].sort((a, b) => a.price - b.price);
+      const pickedIds = new Set();
 
-      // Vary price ±PRICE_VARIATION_PCT around the original price
-      const variation = 1 + (Math.random() * 2 - 1) * PRICE_VARIATION_PCT;
-      const newPrice = Math.round(basePrice * variation);
+      if (Math.random() < 0.5) {
+        pickedIds.add(sorted[0].uniqueId);
+      }
+      while (pickedIds.size < Math.min(2, competitors.length)) {
+        const idx = Math.floor(Math.random() * competitors.length);
+        pickedIds.add(competitors[idx].uniqueId);
+      }
+
+      // Apply price variations
+      const changes = new Map();
+      for (const id of pickedIds) {
+        const basePrice =
+          basePricesRef.current.get(id) ?? sorted.find((c) => c.uniqueId === id)?.price ?? 0;
+        const variation = 1 + (Math.random() * 2 - 1) * PRICE_VARIATION_PCT;
+        changes.set(id, Math.round(basePrice * variation));
+      }
 
       const next = prev.map((item) => {
-        if (item.uniqueId === target.uniqueId) return { ...item, price: newPrice };
+        if (changes.has(item.uniqueId)) return { ...item, price: changes.get(item.uniqueId) };
         return item;
       });
 
-      // Recalculate user price: always min(competitors) - 1
+      // Recalculate user price: min(competitors) - 1, capped by real leader base price
       const minCompetitorPrice = Math.min(
         ...next.filter((i) => i.type !== 'user').map((i) => i.price),
       );
+      const realLeaderPrice = basePricesRef.current.size
+        ? Math.min(...basePricesRef.current.values())
+        : minCompetitorPrice;
+      const userPrice = Math.min(minCompetitorPrice - 1, realLeaderPrice - 1);
       const adjusted = next.map((item) =>
-        item.type === 'user' ? { ...item, price: minCompetitorPrice - 1 } : item,
+        item.type === 'user' ? { ...item, price: userPrice } : item,
       );
       return sortWithUserFirst(adjusted);
     });

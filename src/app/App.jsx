@@ -14,6 +14,8 @@ export default function App() {
             <span className={s.logoText}>SaleScout</span>
           </div>
 
+          <div id="nav-progress-slot" className={s.progressSlot} />
+
           <div className={s.langWrap}>
             <LanguageMenu />
           </div>

@@ -1,6 +1,8 @@
 import i18next from 'i18next';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+// In dev we proxy `/api` via Vite, so default to same-origin.
+// For production/remote API set `VITE_API_URL` (e.g. https://api.example.com).
+const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
 
 export async function analyzeKaspi(payload) {
   const response = await fetch(`${API_URL}/api/analyze`, {

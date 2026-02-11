@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import StepProgress from '@/features/wizard/StepProgress';
@@ -101,9 +102,11 @@ export default function AiProfitAnalyzerPage() {
     setLeadSubmitting(false);
   };
 
+  const progressSlot = document.getElementById('nav-progress-slot');
+
   return (
     <div className={s.root}>
-      <StepProgress current={progressStep} />
+      {progressSlot && createPortal(<StepProgress current={progressStep} />, progressSlot)}
       <div className={s.content}>
         <AnimatePresence mode="wait">
           {step === 'welcome' && (

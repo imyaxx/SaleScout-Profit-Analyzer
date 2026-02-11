@@ -80,3 +80,10 @@ svg {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Mobile: prevent horizontal pan ── */
+@media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden;
+  }
+}

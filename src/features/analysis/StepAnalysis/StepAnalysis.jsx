@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -113,6 +113,39 @@ export default function StepAnalysis({
 
   const resultRef = useRef(null);
   const scrolledForRef = useRef(null); // tracks which analysis object we already scrolled for
+
+  /* ── iOS mobile: fully block zoom (pinch + double-tap) on analysis ── */
+  useLayoutEffect(() => {
+    if (window.innerWidth > 480) return;
+
+    // 1) Viewport meta lock
+    const meta = document.querySelector('meta[name="viewport"]');
+    const originalContent = meta?.getAttribute('content') ?? '';
+    meta?.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+
+    // 2) Block pinch-zoom via gesture events (Safari-specific)
+    const prevent = (e) => e.preventDefault();
+    document.addEventListener('gesturestart', prevent, { passive: false });
+    document.addEventListener('gesturechange', prevent, { passive: false });
+    document.addEventListener('gestureend', prevent, { passive: false });
+
+    // 3) Block double-tap zoom via touchend timing
+    let lastTap = 0;
+    const blockDoubleTap = (e) => {
+      const now = Date.now();
+      if (now - lastTap < 300) e.preventDefault();
+      lastTap = now;
+    };
+    document.addEventListener('touchend', blockDoubleTap, { passive: false });
+
+    return () => {
+      meta?.setAttribute('content', originalContent);
+      document.removeEventListener('gesturestart', prevent);
+      document.removeEventListener('gesturechange', prevent);
+      document.removeEventListener('gestureend', prevent);
+      document.removeEventListener('touchend', blockDoubleTap);
+    };
+  }, []);
 
   /* ── Auto-scroll to result when success state appears ── */
   useEffect(() => {
@@ -237,15 +270,15 @@ export default function StepAnalysis({
         className={s.root}
       >
         <div className={s.headerRow}>
+          <button onClick={onBack} className={s.btnBack}>
+            <ArrowLeft size={16} />
+            <span className={s.btnBackLabel}>{t('input.back')}</span>
+          </button>
           <motion.h2 variants={v ?? headerTitleVariant} className={s.title}>
             {t('analysis.title')}
             <span className={s.dateLabel}>{t('analysis.date', { date: formattedDate })}</span>
           </motion.h2>
           <motion.div variants={v ?? headerActionsVariant} className={s.headerActions}>
-            <button onClick={onBack} className={s.btnBack}>
-              <ArrowLeft size={16} />
-              {t('input.back')}
-            </button>
             <button onClick={onNext} className={s.ctaBtn}>
               {t('analysis.cta')}
               <ArrowRight size={16} />
@@ -268,10 +301,13 @@ export default function StepAnalysis({
         storeName={shopName}
         rank={stickyRank}
         price={stickyPrice}
+        rawPrice={toNumber(effectiveAnalysis.myShopPrice)}
         leaderName={leader?.name}
         leaderPrice={leader ? formatMoney(leader.price) : null}
+        rawLeaderPrice={leader?.price ?? null}
         isLeader={isLeader}
         visible={showSticky}
+        onCta={onNext}
       />
     </ErrorBoundary>
   );

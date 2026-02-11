@@ -8,6 +8,7 @@ import StepInput from '@/features/wizard/StepInput';
 import StepAnalysis from '@/features/analysis/StepAnalysis';
 import StepLeadForm from '@/features/wizard/StepLeadForm';
 import { analyzeKaspi, submitLead } from '@/shared/lib/onboardingClient';
+import { cn } from '@/shared/lib/utils';
 
 import s from './AiProfitAnalyzerPage.module.css';
 
@@ -64,7 +65,11 @@ export default function AiProfitAnalyzerPage() {
     setShopName(shop);
     setLeadForm((prev) => ({ ...prev, shopName: shop }));
     shouldRunAnalysis.current = true;
-    setStep('analysis');
+
+    // iOS: blur input → close keyboard → reset scroll/zoom → navigate
+    document.activeElement?.blur();
+    window.scrollTo(0, 0);
+    setTimeout(() => setStep('analysis'), 60);
   };
 
   useEffect(() => {
@@ -105,7 +110,7 @@ export default function AiProfitAnalyzerPage() {
   const progressSlot = document.getElementById('nav-progress-slot');
 
   return (
-    <div className={s.root}>
+    <div className={cn(s.root, step === 'analysis' && s.rootAnalysis)}>
       {progressSlot && createPortal(<StepProgress current={progressStep} />, progressSlot)}
       <div className={s.content}>
         <AnimatePresence mode="wait">

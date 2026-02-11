@@ -85,9 +85,23 @@
       "ranking": {
         "kicker": "Позиция на Kaspi",
         "title": "Ваш магазин растёт с SaleScout",
+        "trialBadge": "3 дня бесплатно",
+        "subtitle": "Позиция, цена лидера и разница — сразу на экране",
         "yourShop": "Ваш магазин",
         "reviews": "отзывов",
         "select": "Выбрать"
+      },
+      "sticky": {
+        "you": "Вы",
+        "goal": "Цель",
+        "leader": "Лидер",
+        "trial": "TRIAL 3 дня",
+        "diff": "Разница",
+        "needReduce": "Нужно снизить на {{amount}}",
+        "youLower": "Вы ниже на {{amount}}",
+        "pricesEqual": "Цены равны",
+        "cta": "Запустить 3 дня бесплатно",
+        "cancel": "Отмена в 1 клик"
       }
     },
     "lead": {

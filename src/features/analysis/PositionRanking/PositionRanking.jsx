@@ -16,7 +16,7 @@ const layoutTransition = {
 
 /* ── Timing ── */
 const JUMP_DELAY_MS = 600; // pause before user jumps to #1
-const SHUFFLE_STEP_MS = 2500; // how often a competitor changes price
+const SHUFFLE_STEP_MS = 3000; // how often a competitor changes price
 const SHUFFLE_START_DELAY_MS = 1500; // pause before shuffle begins after jump
 const PRICE_VARIATION_PCT = 0.02; // ±2% price swing for competitors
 
@@ -32,7 +32,7 @@ function pluralizeReviews(count, lang) {
 
 /* ── Animated price counter ── */
 function AnimatedPrice({ value, className }) {
-  const spring = useSpring(value, { stiffness: 300, damping: 30 });
+  const spring = useSpring(value, { stiffness: 120, damping: 25 });
   const [display, setDisplay] = useState(value);
 
   useEffect(() => {
@@ -72,6 +72,7 @@ function useRankingAnimation(renderList, reduceMotion) {
   const [list, setList] = useState(initialList);
   const timerRef = useRef(null);
   const basePricesRef = useRef(new Map());
+  const prevLeaderIdRef = useRef(null);
 
   // Reset when renderList changes
   useEffect(() => {
@@ -100,13 +101,15 @@ function useRankingAnimation(renderList, reduceMotion) {
   const jumpToFirst = useCallback(() => {
     setList((prev) => {
       if (!userItem) return prev;
-      const minCompetitorPrice = Math.min(
-        ...prev.filter((i) => i.type !== 'user').map((i) => i.price),
-      );
+      const competitors = prev.filter((i) => i.type !== 'user');
+      const sorted = [...competitors].sort((a, b) => a.price - b.price);
+      const minCompetitorPrice = sorted[0]?.price ?? 0;
       const realLeaderPrice = basePricesRef.current.size
         ? Math.min(...basePricesRef.current.values())
         : minCompetitorPrice;
       const userPrice = Math.min(minCompetitorPrice - 1, realLeaderPrice - 1);
+      // Remember who is the current leader among competitors
+      prevLeaderIdRef.current = sorted[0]?.uniqueId ?? null;
       const next = prev.map((item) =>
         item.type === 'user' ? { ...item, price: userPrice } : item,
       );
@@ -114,31 +117,37 @@ function useRankingAnimation(renderList, reduceMotion) {
     });
   }, [userItem]);
 
-  // ── Shuffle logic: change 2 competitors' prices per tick, bias toward leader ──
+  // ── Shuffle logic: rotate 2nd place each tick ──
   const shuffleStep = useCallback(() => {
     setList((prev) => {
       const competitors = prev.filter((i) => i.type !== 'user');
-      if (competitors.length === 0) return prev;
+      if (competitors.length < 2) return prev;
 
-      // Pick targets: 50% chance the cheapest competitor is one of them
       const sorted = [...competitors].sort((a, b) => a.price - b.price);
-      const pickedIds = new Set();
+      const currentLeader = sorted[0]; // current 2nd place
+      const others = sorted.filter((c) => c.uniqueId !== currentLeader.uniqueId);
 
-      if (Math.random() < 0.5) {
-        pickedIds.add(sorted[0].uniqueId);
-      }
-      while (pickedIds.size < Math.min(2, competitors.length)) {
-        const idx = Math.floor(Math.random() * competitors.length);
-        pickedIds.add(competitors[idx].uniqueId);
-      }
+      // Pick a random competitor to rise to 2nd place
+      const riserIdx = Math.floor(Math.random() * others.length);
+      const riser = others[riserIdx];
 
-      // Apply price variations
       const changes = new Map();
-      for (const id of pickedIds) {
-        const basePrice =
-          basePricesRef.current.get(id) ?? sorted.find((c) => c.uniqueId === id)?.price ?? 0;
-        const variation = 1 + (Math.random() * 2 - 1) * PRICE_VARIATION_PCT;
-        changes.set(id, Math.round(basePrice * variation));
+
+      // Current 2nd place — push price UP so they drop down
+      const leaderBase = basePricesRef.current.get(currentLeader.uniqueId) ?? currentLeader.price;
+      changes.set(currentLeader.uniqueId, Math.round(leaderBase * (1 + 0.03 + Math.random() * 0.03)));
+
+      // Riser — pull price DOWN so they rise to 2nd
+      const riserBase = basePricesRef.current.get(riser.uniqueId) ?? riser.price;
+      changes.set(riser.uniqueId, Math.round(riserBase * (1 - 0.01 - Math.random() * 0.03)));
+
+      // Small ±2% variations on 1-2 other competitors for liveliness
+      for (const c of others) {
+        if (!changes.has(c.uniqueId) && Math.random() < 0.4) {
+          const base = basePricesRef.current.get(c.uniqueId) ?? c.price;
+          const variation = 1 + (Math.random() * 2 - 1) * PRICE_VARIATION_PCT;
+          changes.set(c.uniqueId, Math.round(base * variation));
+        }
       }
 
       const next = prev.map((item) => {
@@ -146,10 +155,12 @@ function useRankingAnimation(renderList, reduceMotion) {
         return item;
       });
 
-      // Recalculate user price: min(competitors) - 1, capped by real leader base price
-      const minCompetitorPrice = Math.min(
-        ...next.filter((i) => i.type !== 'user').map((i) => i.price),
-      );
+      // New leader is guaranteed to be different — recalculate user price
+      const newCompetitors = next.filter((i) => i.type !== 'user');
+      const newSorted = [...newCompetitors].sort((a, b) => a.price - b.price);
+      prevLeaderIdRef.current = newSorted[0]?.uniqueId ?? null;
+
+      const minCompetitorPrice = newSorted[0]?.price ?? 0;
       const realLeaderPrice = basePricesRef.current.size
         ? Math.min(...basePricesRef.current.values())
         : minCompetitorPrice;

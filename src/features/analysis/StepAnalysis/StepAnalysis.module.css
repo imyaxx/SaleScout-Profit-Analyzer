@@ -94,6 +94,46 @@
   gap: 1rem;
 }
 
+@media (max-width: 480px) {
+  .root {
+    gap: 0.25rem;
+    --stickyH: 200px;
+    touch-action: pan-y;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  .headerRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
+    padding-bottom: 0.375rem;
+    border-bottom: none;
+  }
+  .btnBack {
+    flex-shrink: 0;
+    padding: 4px;
+  }
+  .btnBackLabel {
+    display: none;
+  }
+  .title {
+    font-size: var(--font-base);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .dateLabel {
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .headerActions {
+    display: none;
+  }
+}
+
 @media (max-width: 420px) {
   .root {
     --stickyH: 68px;

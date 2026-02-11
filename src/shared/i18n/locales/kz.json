@@ -84,10 +84,24 @@
       },
       "ranking": {
         "kicker": "Kaspi-дегі орын",
-        "title": "Сіздің дүкеніңіз SaleScout-пен өседі",
+        "title": "Сіздің дүкеніңіз SaleScout-пен өсіп жатыр",
+        "trialBadge": "3 күн тегін",
+        "subtitle": "Орын, лидер бағасы және айырмашылық — бір экранда",
         "yourShop": "Сіздің дүкеніңіз",
         "reviews": "пікір",
         "select": "Таңдау"
+      },
+      "sticky": {
+        "you": "Сіз",
+        "goal": "Мақсат",
+        "leader": "Лидер",
+        "trial": "TRIAL 3 күн",
+        "diff": "Айырмашылық",
+        "needReduce": "{{amount}} төмендету керек",
+        "youLower": "Сіз {{amount}} төмен",
+        "pricesEqual": "Бағалар тең",
+        "cta": "3 күн тегін бастау",
+        "cancel": "1 басу арқылы бас тарту"
       }
     },
     "lead": {

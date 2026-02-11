@@ -84,10 +84,24 @@
       },
       "ranking": {
         "kicker": "Kaspi position",
-        "title": "Your store grows with SaleScout",
+        "title": "Your store is growing with SaleScout",
+        "trialBadge": "3 days free",
+        "subtitle": "Position, leader price and gap — all on one screen",
         "yourShop": "Your store",
         "reviews": "reviews",
         "select": "Select"
+      },
+      "sticky": {
+        "you": "You",
+        "goal": "Goal",
+        "leader": "Leader",
+        "trial": "TRIAL 3 days",
+        "diff": "Difference",
+        "needReduce": "Need to reduce by {{amount}}",
+        "youLower": "You're lower by {{amount}}",
+        "pricesEqual": "Prices are equal",
+        "cta": "Start 3-day free trial",
+        "cancel": "Cancel in 1 click"
       }
     },
     "lead": {

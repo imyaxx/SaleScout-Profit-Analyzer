@@ -9,7 +9,6 @@ export default function StepProgress({ current }) {
     { id: 1, label: t('steps.welcome') },
     { id: 2, label: t('steps.data') },
     { id: 3, label: t('steps.analysis') },
-    { id: 4, label: t('steps.lead') },
   ];
 
   return (

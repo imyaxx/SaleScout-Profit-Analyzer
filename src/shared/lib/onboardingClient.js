@@ -19,19 +19,3 @@ export async function analyzeKaspi(payload) {
 
   return response.json();
 }
-
-export async function submitLead(payload) {
-  const response = await fetch(`${API_URL}/api/lead`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => null);
-    const message = data?.message || i18next.t('errors.leadFailed');
-    throw new Error(message);
-  }
-
-  return response.json();
-}

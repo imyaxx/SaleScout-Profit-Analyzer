@@ -1,4 +1,4 @@
-import AiProfitAnalyzerPage from '@/pages/AiProfitAnalyzerPage';
+import ProfitAnalyzerPage from '@/pages/ProfitAnalyzerPage';
 import LanguageMenu from '@/shared/ui/LanguageMenu/LanguageMenu';
 import s from './App.module.css';
 
@@ -23,7 +23,7 @@ export default function App() {
       </nav>
 
       <main>
-        <AiProfitAnalyzerPage />
+        <ProfitAnalyzerPage />
       </main>
     </div>
   );

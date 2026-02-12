@@ -17,7 +17,6 @@ function parseUrl(rawUrl) {
     }
     return {
       host: parsed.host,
-      href: parsed.href
     };
   } catch (error) {
     return null;

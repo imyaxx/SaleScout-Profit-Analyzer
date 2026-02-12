@@ -6,11 +6,10 @@ import StepProgress from '@/features/wizard/StepProgress';
 import StepWelcome from '@/features/wizard/StepWelcome';
 import StepInput from '@/features/wizard/StepInput';
 import StepAnalysis from '@/features/analysis/StepAnalysis';
-import StepLeadForm from '@/features/wizard/StepLeadForm';
-import { analyzeKaspi, submitLead } from '@/shared/lib/onboardingClient';
+import { analyzeKaspi } from '@/shared/lib/onboardingClient';
 import { cn } from '@/shared/lib/utils';
 
-import s from './AiProfitAnalyzerPage.module.css';
+import s from './ProfitAnalyzerPage.module.css';
 
 const stepTransition = {
   initial: { opacity: 0, y: 20 },
@@ -18,15 +17,7 @@ const stepTransition = {
   exit: { opacity: 0, y: -10 },
 };
 
-const initialLead = {
-  name: '',
-  phone: '+7',
-  email: '',
-  shopName: '',
-  description: '',
-};
-
-export default function AiProfitAnalyzerPage() {
+export default function ProfitAnalyzerPage() {
   const { t } = useTranslation();
   const [step, setStep] = useState('welcome');
   const [productUrl, setProductUrl] = useState('');
@@ -36,12 +27,7 @@ export default function AiProfitAnalyzerPage() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
 
-  const [leadForm, setLeadForm] = useState(initialLead);
-  const [leadSubmitting, setLeadSubmitting] = useState(false);
-  const [leadError, setLeadError] = useState(null);
-  const [leadSuccess, setLeadSuccess] = useState(false);
-
-  const progressStep = step === 'welcome' ? 1 : step === 'analysis' ? 3 : step === 'lead' ? 4 : 2;
+  const progressStep = step === 'welcome' ? 1 : step === 'analysis' ? 3 : 2;
 
   const runAnalysis = useCallback(async () => {
     if (!productUrl || !shopName) return;
@@ -63,7 +49,6 @@ export default function AiProfitAnalyzerPage() {
   const handleInputNext = (url, shop) => {
     setProductUrl(url);
     setShopName(shop);
-    setLeadForm((prev) => ({ ...prev, shopName: shop }));
     shouldRunAnalysis.current = true;
 
     // iOS: blur input → close keyboard → reset scroll/zoom → navigate
@@ -79,40 +64,14 @@ export default function AiProfitAnalyzerPage() {
     }
   }, [step, runAnalysis]);
 
-  const handleGoLead = () => setStep('lead');
-
-  const handleLeadSubmit = async (payload) => {
-    setLeadSubmitting(true);
-    setLeadError(null);
-    try {
-      await submitLead(payload);
-      setLeadSuccess(true);
-    } catch (err) {
-      setLeadError(err.message || t('errors.leadFailed'));
-    } finally {
-      setLeadSubmitting(false);
-    }
-  };
-
-  const handleRestart = () => {
-    setStep('welcome');
-    setProductUrl('');
-    setShopName('');
-    setAnalysis(null);
-    setAnalysisError(null);
-    setAnalysisLoading(false);
-    setLeadForm(initialLead);
-    setLeadError(null);
-    setLeadSuccess(false);
-    setLeadSubmitting(false);
-  };
-
+  const pageRootRef = useRef(null);
+  const contentRef = useRef(null);
   const progressSlot = document.getElementById('nav-progress-slot');
 
   return (
-    <div className={cn(s.root, step === 'analysis' && s.rootAnalysis)}>
+    <div ref={pageRootRef} className={cn(s.root, step === 'analysis' && s.rootAnalysis)}>
       {progressSlot && createPortal(<StepProgress current={progressStep} />, progressSlot)}
-      <div className={s.content}>
+      <div className={s.content} ref={contentRef}>
         <AnimatePresence mode="wait">
           {step === 'welcome' && (
             <motion.div key="welcome" {...stepTransition}>
@@ -139,23 +98,9 @@ export default function AiProfitAnalyzerPage() {
                 error={analysisError}
                 shopName={shopName}
                 onRetry={runAnalysis}
-                onNext={handleGoLead}
                 onBack={() => setStep('input')}
-              />
-            </motion.div>
-          )}
-
-          {step === 'lead' && (
-            <motion.div key="lead" {...stepTransition}>
-              <StepLeadForm
-                values={leadForm}
-                onChange={(next) => setLeadForm((prev) => ({ ...prev, ...next }))}
-                onBack={() => setStep('analysis')}
-                onSubmit={handleLeadSubmit}
-                isSubmitting={leadSubmitting}
-                error={leadError}
-                success={leadSuccess}
-                onRestart={handleRestart}
+                contentRef={contentRef}
+                pageRootRef={pageRootRef}
               />
             </motion.div>
           )}

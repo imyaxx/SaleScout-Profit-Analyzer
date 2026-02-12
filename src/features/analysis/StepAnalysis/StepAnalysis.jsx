@@ -12,6 +12,8 @@ import { DEMO_ANALYSIS_DATA } from '@/shared/constants/demo';
 import s from './StepAnalysis.module.css';
 
 const EASE_APPLE = [0.22, 1, 0.36, 1];
+const TRIAL_LOGIN_URL =
+  'https://app.salescout.me/login?utm_source=&utm_campaign=&utm_medium=&utm_content=&utm_token=RuQWyk8GVSfaTTn7JMPTWDxWsrzRxiYYRur7EsHoVyp3Ctk6b';
 
 const pageVariants = {
   initial: { opacity: 0 },
@@ -101,18 +103,62 @@ export default function StepAnalysis({
   error,
   shopName,
   onRetry,
-  onNext,
   onBack,
+  pageRootRef,
 }) {
   const { t, i18n } = useTranslation();
   const reduceMotion = useReducedMotion();
   const unknownSeller = t('analysis.unknownSeller');
+  const handleTrialCta = () => {
+    window.location.assign(TRIAL_LOGIN_URL);
+  };
 
   const viewState = isLoading ? 'loading' : error ? 'error' : analysis ? 'success' : 'idle';
   const effectiveAnalysis = analysis ?? DEMO_ANALYSIS_DATA;
 
+  const anchorRef = useRef(null);
   const resultRef = useRef(null);
-  const scrolledForRef = useRef(null); // tracks which analysis object we already scrolled for
+  const stickyRef = useRef(null);
+  const shouldAutoScrollRef = useRef(false);
+
+  /* ── Desktop: measure sticky height → set --sticky-h on page root ── */
+  useLayoutEffect(() => {
+    const mq = window.matchMedia('(min-width: 481px)');
+    let ro = null;
+
+    const measure = () => {
+      const h = stickyRef.current?.offsetHeight || 0;
+      pageRootRef.current?.style.setProperty('--sticky-h', `${h}px`);
+    };
+
+    const enable = () => {
+      measure();
+      requestAnimationFrame(measure);
+      if (stickyRef.current) {
+        ro = new ResizeObserver(measure);
+        ro.observe(stickyRef.current);
+      }
+    };
+
+    const disable = () => {
+      ro?.disconnect();
+      ro = null;
+      pageRootRef.current?.style.removeProperty('--sticky-h');
+    };
+
+    const handleChange = (e) => {
+      if (e.matches) enable();
+      else disable();
+    };
+
+    if (mq.matches) enable();
+    mq.addEventListener('change', handleChange);
+
+    return () => {
+      mq.removeEventListener('change', handleChange);
+      disable();
+    };
+  }, [pageRootRef]);
 
   /* ── iOS mobile: fully block zoom (pinch + double-tap) on analysis ── */
   useLayoutEffect(() => {
@@ -121,7 +167,10 @@ export default function StepAnalysis({
     // 1) Viewport meta lock
     const meta = document.querySelector('meta[name="viewport"]');
     const originalContent = meta?.getAttribute('content') ?? '';
-    meta?.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+    meta?.setAttribute(
+      'content',
+      'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+    );
 
     // 2) Block pinch-zoom via gesture events (Safari-specific)
     const prevent = (e) => e.preventDefault();
@@ -147,21 +196,104 @@ export default function StepAnalysis({
     };
   }, []);
 
+  /* ── Desktop/tablet: block zoom (pinch + double-tap + ctrl/cmd wheel) on analysis ── */
+  useLayoutEffect(() => {
+    if (window.innerWidth < 481) return;
+
+    // 1) Viewport meta lock
+    const meta = document.querySelector('meta[name="viewport"]');
+    const originalContent = meta?.getAttribute('content') ?? '';
+    meta?.setAttribute(
+      'content',
+      'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+    );
+
+    // 2) Block pinch-zoom via gesture events (Safari-specific)
+    const prevent = (e) => e.preventDefault();
+    document.addEventListener('gesturestart', prevent, { passive: false });
+    document.addEventListener('gesturechange', prevent, { passive: false });
+    document.addEventListener('gestureend', prevent, { passive: false });
+
+    // 3) Block double-tap zoom via touchend timing
+    let lastTap = 0;
+    const blockDoubleTap = (e) => {
+      const now = Date.now();
+      if (now - lastTap < 300) e.preventDefault();
+      lastTap = now;
+    };
+    document.addEventListener('touchend', blockDoubleTap, { passive: false });
+
+    // 4) Block ctrl/cmd + wheel zoom (desktop)
+    const blockZoomWheel = (e) => {
+      if (e.ctrlKey || e.metaKey) e.preventDefault();
+    };
+    window.addEventListener('wheel', blockZoomWheel, { passive: false });
+
+    return () => {
+      meta?.setAttribute('content', originalContent);
+      document.removeEventListener('gesturestart', prevent);
+      document.removeEventListener('gesturechange', prevent);
+      document.removeEventListener('gestureend', prevent);
+      document.removeEventListener('touchend', blockDoubleTap);
+      window.removeEventListener('wheel', blockZoomWheel);
+    };
+  }, []);
+
   /* ── Auto-scroll to result when success state appears ── */
   useEffect(() => {
-    if (viewState !== 'success' || !analysis) return;
-    // Only scroll once per unique analysis result
-    if (scrolledForRef.current === analysis) return;
-    scrolledForRef.current = analysis;
+    if (viewState === 'loading') {
+      shouldAutoScrollRef.current = true;
+    }
+  }, [viewState]);
 
-    // Delay to let Framer Motion entrance animation start & DOM settle
-    const id = setTimeout(() => {
-      requestAnimationFrame(() => {
-        smoothScrollTo(resultRef.current, 320);
-      });
-    }, 80);
-    return () => clearTimeout(id);
-  }, [viewState, analysis]);
+  /* ── Auto-scroll to result once after entering from input step ── */
+  useEffect(() => {
+    if (viewState !== 'success' || !analysis || !shouldAutoScrollRef.current) return;
+    shouldAutoScrollRef.current = false;
+
+    let rafA = 0;
+    let rafB = 0;
+    let settleTimerA = 0;
+    let settleTimerB = 0;
+    let pendingImages = [];
+    let onImageLoad = null;
+
+    const run = () => {
+      const target = anchorRef.current ?? resultRef.current;
+      if (!target) return;
+
+      smoothScrollTo(target, 320);
+
+      const settle = () => {
+        const scrollMargin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+        const targetY = target.getBoundingClientRect().top + window.scrollY - scrollMargin;
+        window.scrollTo(0, targetY);
+      };
+
+      settleTimerA = window.setTimeout(settle, 180);
+      settleTimerB = window.setTimeout(settle, 420);
+
+      pendingImages = Array.from(resultRef.current?.querySelectorAll('img') ?? []).filter(
+        (img) => !img.complete,
+      );
+      onImageLoad = () => settle();
+      pendingImages.forEach((img) => img.addEventListener('load', onImageLoad));
+    };
+
+    rafA = requestAnimationFrame(() => {
+      rafB = requestAnimationFrame(run);
+    });
+
+    return () => {
+      cancelAnimationFrame(rafA);
+      cancelAnimationFrame(rafB);
+      if (settleTimerA) window.clearTimeout(settleTimerA);
+      if (settleTimerB) window.clearTimeout(settleTimerB);
+      if (onImageLoad) {
+        pendingImages.forEach((img) => img.removeEventListener('load', onImageLoad));
+      }
+    };
+  }, [analysis, pageRootRef, viewState]);
 
   const top5Sellers = useMemo(() => {
     const offers = Array.isArray(effectiveAnalysis.offers) ? effectiveAnalysis.offers : [];
@@ -185,7 +317,7 @@ export default function StepAnalysis({
       if (top.length >= 5) break;
     }
     return top;
-  }, [effectiveAnalysis.offers, i18n.language, unknownSeller]);
+  }, [effectiveAnalysis.offers, unknownSeller]);
 
   const userShopBase = useMemo(() => {
     if (!effectiveAnalysis.myShopFound) return null;
@@ -217,7 +349,6 @@ export default function StepAnalysis({
     effectiveAnalysis.myShopPrice,
     effectiveAnalysis.offers,
     shopName,
-    i18n.language,
     unknownSeller,
   ]);
 
@@ -228,7 +359,7 @@ export default function StepAnalysis({
       buildMiniRating(top5Sellers, baseComputedUser, shopName, {
         userTitle: t('analysis.ranking.yourShop'),
       }),
-    [top5Sellers, baseComputedUser, shopName, i18n.language, t],
+    [top5Sellers, baseComputedUser, shopName, t],
   );
 
   /* ── Sticky result data ── */
@@ -278,19 +409,18 @@ export default function StepAnalysis({
             {t('analysis.title')}
             <span className={s.dateLabel}>{t('analysis.date', { date: formattedDate })}</span>
           </motion.h2>
+          <span className={s.dateLabelDesktop}>{t('analysis.date', { date: formattedDate })}</span>
           <motion.div variants={v ?? headerActionsVariant} className={s.headerActions}>
-            <button onClick={onNext} className={s.ctaBtn}>
+            <button onClick={handleTrialCta} className={s.ctaBtn}>
               {t('analysis.cta')}
               <ArrowRight size={16} />
             </button>
           </motion.div>
         </div>
 
-        <motion.div
-          ref={resultRef}
-          variants={v ?? rankingSectionVariant}
-          className={s.rankingCenter}
-        >
+        <div ref={anchorRef} />
+
+        <motion.div ref={resultRef} variants={v ?? rankingSectionVariant} className={s.rankingCenter}>
           <PositionRanking renderList={rankingRenderList} />
         </motion.div>
 
@@ -298,6 +428,7 @@ export default function StepAnalysis({
       </motion.div>
 
       <StickyResult
+        ref={stickyRef}
         storeName={shopName}
         rank={stickyRank}
         price={stickyPrice}
@@ -307,7 +438,7 @@ export default function StepAnalysis({
         rawLeaderPrice={leader?.price ?? null}
         isLeader={isLeader}
         visible={showSticky}
-        onCta={onNext}
+        onCta={handleTrialCta}
       />
     </ErrorBoundary>
   );

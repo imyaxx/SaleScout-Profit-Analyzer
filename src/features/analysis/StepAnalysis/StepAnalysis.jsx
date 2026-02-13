@@ -12,8 +12,7 @@ import { DEMO_ANALYSIS_DATA } from '@/shared/constants/demo';
 import s from './StepAnalysis.module.css';
 
 const EASE_APPLE = [0.22, 1, 0.36, 1];
-const TRIAL_LOGIN_URL =
-  'https://app.salescout.me/login?utm_source=&utm_campaign=&utm_medium=&utm_content=&utm_token=RuQWyk8GVSfaTTn7JMPTWDxWsrzRxiYYRur7EsHoVyp3Ctk6b';
+const TRIAL_LOGIN_URL = 'https://app.salescout.me/login';
 
 const pageVariants = {
   initial: { opacity: 0 },
@@ -420,7 +419,11 @@ export default function StepAnalysis({
 
         <div ref={anchorRef} />
 
-        <motion.div ref={resultRef} variants={v ?? rankingSectionVariant} className={s.rankingCenter}>
+        <motion.div
+          ref={resultRef}
+          variants={v ?? rankingSectionVariant}
+          className={s.rankingCenter}
+        >
           <PositionRanking renderList={rankingRenderList} />
         </motion.div>
 

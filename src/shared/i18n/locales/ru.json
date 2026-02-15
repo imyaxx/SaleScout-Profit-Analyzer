@@ -43,6 +43,7 @@
         "youLower": "Вы ниже на {{amount}}",
         "youLowerShort": "Ниже на",
         "pricesEqual": "Цены равны",
+        "position": "Позиция: #{{rank}}",
         "resultsTitle": "Результаты анализа",
         "cta": "Запустить 3 дня бесплатно",
         "cancel": "Отмена в 1 клик"

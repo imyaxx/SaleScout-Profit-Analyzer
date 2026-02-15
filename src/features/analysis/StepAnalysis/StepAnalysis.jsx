@@ -1,18 +1,18 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LoadingState, ErrorState } from '@/shared/ui/States/States';
 import ErrorBoundary from '@/shared/ui/ErrorBoundary/ErrorBoundary';
 import PositionRanking from '@/features/analysis/PositionRanking/PositionRanking';
 import StickyResult from '@/features/analysis/StickyResult/StickyResult';
-import { buildMiniRating, computeSimulatedUser } from '@/shared/lib/miniSellerRanking';
-import { formatMoney } from '@/shared/lib/utils';
+import { buildMiniRating, computeSimulatedUser, normalizeShopKey } from '@/shared/lib/miniSellerRanking';
+import { formatMoney, toNumber, safeString } from '@/shared/lib/utils';
 import { DEMO_ANALYSIS_DATA } from '@/shared/constants/demo';
+import { TRIAL_LOGIN_URL } from '@/shared/constants/app';
 import s from './StepAnalysis.module.css';
 
 const EASE_APPLE = [0.22, 1, 0.36, 1];
-const TRIAL_LOGIN_URL = 'https://app.salescout.me/login';
 
 const pageVariants = {
   initial: { opacity: 0 },
@@ -23,25 +23,6 @@ const pageVariants = {
       ease: EASE_APPLE,
       staggerChildren: 0.12,
     },
-  },
-};
-
-const headerTitleVariant = {
-  initial: { opacity: 0, y: 20, filter: 'blur(4px)' },
-  animate: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.6, ease: EASE_APPLE },
-  },
-};
-
-const headerActionsVariant = {
-  initial: { opacity: 0, y: 12 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: 0.15, ease: EASE_APPLE },
   },
 };
 
@@ -58,20 +39,6 @@ const staticVariant = {
   initial: {},
   animate: {},
 };
-
-const toNumber = (value, fallback = 0) => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : fallback;
-};
-
-const safeString = (value, fallback) => String(value ?? fallback);
-
-const normalizeShopKey = (value) =>
-  String(value ?? '')
-    .toLowerCase()
-    .replace(/["«»''`]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
 
 export default function StepAnalysis({
   analysis,
@@ -92,7 +59,6 @@ export default function StepAnalysis({
   const viewState = isLoading ? 'loading' : error ? 'error' : analysis ? 'success' : 'idle';
   const effectiveAnalysis = analysis ?? DEMO_ANALYSIS_DATA;
 
-  const resultRef = useRef(null);
   const stickyRef = useRef(null);
 
   /* ── Measure sticky height → set --sticky-h on page root ── */
@@ -256,7 +222,6 @@ export default function StepAnalysis({
         className={s.root}
       >
         <motion.div
-          ref={resultRef}
           variants={v ?? rankingSectionVariant}
           className={s.rankingCenter}
         >

@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 
-const normalizeShopKey = (value) =>
+export const normalizeShopKey = (value) =>
   String(value || '')
     .toLowerCase()
     .replace(/["«»''`]/g, '')
@@ -9,6 +9,9 @@ const normalizeShopKey = (value) =>
 
 const isFiniteNumber = (value) => Number.isFinite(Number(value));
 
+const DEFAULT_MAX_DISCOUNT_PCT = 5;
+const DEFAULT_MAX_GAIN_CAP = 5;
+
 export function computeSimulatedUser(userShopBase, sliderValue, scoringInputs = {}) {
   if (!userShopBase) return null;
   const basePrice = Number(userShopBase.priceBase);
@@ -16,11 +19,11 @@ export function computeSimulatedUser(userShopBase, sliderValue, scoringInputs = 
   if (!isFiniteNumber(basePrice) || !isFiniteNumber(baseRank) || baseRank <= 0) return null;
 
   const discountPct = Math.max(0, Number(sliderValue) || 0);
-  const maxDiscountPct = scoringInputs.maxDiscountPct ?? 5;
-  const safeMaxDiscount = maxDiscountPct > 0 ? maxDiscountPct : 5;
+  const maxDiscountPct = scoringInputs.maxDiscountPct ?? DEFAULT_MAX_DISCOUNT_PCT;
+  const safeMaxDiscount = maxDiscountPct > 0 ? maxDiscountPct : DEFAULT_MAX_DISCOUNT_PCT;
   const price = Math.max(0, Math.round(basePrice * (1 - discountPct / 100)));
 
-  const maxGainCap = scoringInputs.maxGainCap ?? 5;
+  const maxGainCap = scoringInputs.maxGainCap ?? DEFAULT_MAX_GAIN_CAP;
   const maxGain = Math.min(maxGainCap, Math.max(baseRank - 1, 0));
   const improvement = Math.round((discountPct / safeMaxDiscount) * maxGain);
   const rank = Math.max(1, baseRank - improvement);

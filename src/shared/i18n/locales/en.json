@@ -43,6 +43,7 @@
         "youLower": "You're lower by {{amount}}",
         "youLowerShort": "Lower by",
         "pricesEqual": "Prices are equal",
+        "position": "Position: #{{rank}}",
         "resultsTitle": "Analysis results",
         "cta": "Start 3-day free trial",
         "cancel": "Cancel in 1 click"

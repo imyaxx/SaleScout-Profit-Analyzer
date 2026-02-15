@@ -3,10 +3,11 @@ import { initReactI18next } from 'react-i18next';
 import ru from './locales/ru.json';
 import kk from './locales/kz.json';
 import en from './locales/en.json';
+import { STORAGE_KEYS } from '@/shared/constants/app';
 
 const resources = { ru, kk, en };
 const supportedLanguages = ['ru', 'kk', 'en'];
-const storageKey = 'salescout-lang';
+const storageKey = STORAGE_KEYS.LANGUAGE;
 
 function getInitialLanguage() {
   if (typeof window === 'undefined') return 'ru';

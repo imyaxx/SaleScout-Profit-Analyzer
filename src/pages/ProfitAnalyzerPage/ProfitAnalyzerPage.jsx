@@ -9,6 +9,8 @@ import { cn } from '@/shared/lib/utils';
 
 import s from './ProfitAnalyzerPage.module.css';
 
+const KEYBOARD_DISMISS_DELAY_MS = 60;
+
 const stepTransition = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -50,7 +52,7 @@ export default function ProfitAnalyzerPage() {
     // iOS: blur input → close keyboard → reset scroll/zoom → navigate
     document.activeElement?.blur();
     window.scrollTo(0, 0);
-    setTimeout(() => setStep('analysis'), 60);
+    setTimeout(() => setStep('analysis'), KEYBOARD_DISMISS_DELAY_MS);
   };
 
   useEffect(() => {
@@ -61,11 +63,10 @@ export default function ProfitAnalyzerPage() {
   }, [step, runAnalysis]);
 
   const pageRootRef = useRef(null);
-  const contentRef = useRef(null);
 
   return (
     <div ref={pageRootRef} className={cn(s.root, step === 'analysis' && s.rootAnalysis)}>
-      <div className={s.content} ref={contentRef}>
+      <div className={s.content}>
         <AnimatePresence mode="wait">
           {step === 'welcome' && (
             <motion.div key="welcome" {...stepTransition}>
@@ -93,7 +94,6 @@ export default function ProfitAnalyzerPage() {
                 shopName={shopName}
                 onRetry={runAnalysis}
                 onBack={() => setStep('input')}
-                contentRef={contentRef}
                 pageRootRef={pageRootRef}
               />
             </motion.div>

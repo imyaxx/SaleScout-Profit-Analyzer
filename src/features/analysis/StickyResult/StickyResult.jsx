@@ -55,7 +55,7 @@ const StickyResult = forwardRef(function StickyResult(
               <div className={s.soloInfo}>
                 <p className={s.storeName}>{storeName || '—'}</p>
                 <div className={s.soloMeta}>
-                  <span className={s.metaItem}>Позиция: #{rank ?? '—'}</span>
+                  <span className={s.metaItem}>{t('analysis.sticky.position', { rank: rank ?? '—' })}</span>
                   <span className={s.metaDot} />
                   <span className={s.metaItem}>{price || '—'}</span>
                 </div>
@@ -69,7 +69,7 @@ const StickyResult = forwardRef(function StickyResult(
                   <p className={s.storeName}>{storeName || '—'}</p>
                 </div>
                 <div className={s.columnMeta}>
-                  <span className={s.metaItem}>Позиция: #{rank ?? '—'}</span>
+                  <span className={s.metaItem}>{t('analysis.sticky.position', { rank: rank ?? '—' })}</span>
                   <span className={s.metaDot} />
                   <span className={s.metaItem}>{price || '—'}</span>
                 </div>
@@ -81,7 +81,7 @@ const StickyResult = forwardRef(function StickyResult(
                   <p className={s.storeName}>{leaderName || '—'}</p>
                 </div>
                 <div className={s.columnMeta}>
-                  <span className={s.metaItem}>Позиция: #1</span>
+                  <span className={s.metaItem}>{t('analysis.sticky.position', { rank: 1 })}</span>
                   <span className={s.metaDot} />
                   <span className={s.metaItem}>{leaderPrice || '—'}</span>
                 </div>

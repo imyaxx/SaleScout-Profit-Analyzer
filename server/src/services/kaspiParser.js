@@ -15,6 +15,16 @@ const REQUEST_TIMEOUT_MS = 15000;          // Таймаут одного зап
 const KASPI_HOST = 'kaspi.kz';
 const KASPI_API_BASE = 'https://kaspi.kz/yml/offer-view/offers';
 
+const ERROR_MESSAGES = {
+  NO_URL: 'Введите ссылку на товар',
+  INVALID_URL: 'Некорректная ссылка',
+  UNSUPPORTED_PLATFORM: 'Платформа не поддерживается. Вставьте ссылку на товар Kaspi.',
+  NO_PRODUCT_ID: 'Не удалось определить productId',
+  NO_SHOP_NAME: 'Введите название магазина',
+  NO_OFFERS: 'Не удалось получить список продавцов',
+  NO_LEADER: 'Не удалось определить лидера',
+};
+
 // ─── Утилиты нормализации и извлечения данных ─────────
 
 /** Приводит название магазина к единому формату для сравнения */
@@ -148,23 +158,23 @@ async function requestWithRetry(url, options) {
  */
 export async function analyzeKaspiProduct(productUrl, myShopName) {
   if (!productUrl) {
-    throw new Error('Введите ссылку на товар');
+    throw new Error(ERROR_MESSAGES.NO_URL);
   }
 
   let parsedUrl = null;
   try {
     parsedUrl = new URL(productUrl);
   } catch (error) {
-    throw new Error('Некорректная ссылка');
+    throw new Error(ERROR_MESSAGES.INVALID_URL);
   }
 
   if (!parsedUrl.hostname.endsWith(KASPI_HOST)) {
-    throw new Error('Платформа не поддерживается. Вставьте ссылку на товар Kaspi.');
+    throw new Error(ERROR_MESSAGES.UNSUPPORTED_PLATFORM);
   }
 
   const productId = extractProductIdFromPath(parsedUrl.pathname);
   if (!productId) {
-    throw new Error('Не удалось определить productId');
+    throw new Error(ERROR_MESSAGES.NO_PRODUCT_ID);
   }
 
   const cityId = parsedUrl.searchParams.get('c') || CITY_ID_DEFAULT;
@@ -175,7 +185,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
 
   const normalizedTarget = normalizeShopName(myShopName);
   if (!normalizedTarget) {
-    throw new Error('Введите название магазина');
+    throw new Error(ERROR_MESSAGES.NO_SHOP_NAME);
   }
 
   let leaderShop = null;
@@ -220,7 +230,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
     const offers = extractOffers(payload);
     if (!Array.isArray(offers) || offers.length === 0) {
       if (page === 0) {
-        throw new Error('Не удалось получить список продавцов');
+        throw new Error(ERROR_MESSAGES.NO_OFFERS);
       }
       break;
     }
@@ -271,7 +281,7 @@ export async function analyzeKaspiProduct(productUrl, myShopName) {
   }
 
   if (leaderPrice === null || leaderShop === null) {
-    throw new Error('Не удалось определить лидера');
+    throw new Error(ERROR_MESSAGES.NO_LEADER);
   }
 
   if (!myShopFound) {

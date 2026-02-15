@@ -2,13 +2,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Check, Globe } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
+import { LANGUAGES } from '@/shared/constants/app';
 import s from './LanguageMenu.module.css';
-
-const LANGUAGES = [
-  { code: 'ru', label: 'RU' },
-  { code: 'kk', label: 'KZ' },
-  { code: 'en', label: 'EN' },
-];
 
 export default function LanguageMenu() {
   const { i18n } = useTranslation();

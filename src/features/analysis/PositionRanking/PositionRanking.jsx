@@ -8,7 +8,18 @@ import sellersBg from '@/assets/sellers-bg.png';
 import s from './PositionRanking.module.css';
 
 /* ── Animation config ── */
+const EASE_APPLE = [0.22, 1, 0.36, 1];
 const EASE_STANDARD = [0.4, 0, 0.2, 1];
+
+const phoneEntrance = {
+  initial: { opacity: 0, scale: 0.92, y: 30 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: 0.15, ease: EASE_APPLE },
+  },
+};
 
 const layoutTransition = {
   layout: { type: 'tween', duration: 0.8, ease: EASE_STANDARD },
@@ -225,7 +236,13 @@ export default function PositionRanking({ renderList, onBack, formattedDate }) {
         <p className={s.kicker}>{t('analysis.ranking.kicker')}</p>
       </div>
 
-      <div id="analysis-phone-wrap" className={s.phoneWrap}>
+      <motion.div
+        id="analysis-phone-wrap"
+        className={s.phoneWrap}
+        variants={reduceMotion ? undefined : phoneEntrance}
+        initial={reduceMotion ? undefined : 'initial'}
+        animate={reduceMotion ? undefined : 'animate'}
+      >
         <img src={sellersBg} alt="" className={s.phoneBg} draggable={false} />
         <div className={s.overlay}>
           <div className={s.listContainer}>
@@ -284,7 +301,7 @@ export default function PositionRanking({ renderList, onBack, formattedDate }) {
             </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

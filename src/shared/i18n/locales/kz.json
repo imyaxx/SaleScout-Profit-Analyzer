@@ -43,6 +43,7 @@
         "youLower": "Сіз {{amount}} төмен",
         "youLowerShort": "Төмен",
         "pricesEqual": "Бағалар тең",
+        "position": "Орын: #{{rank}}",
         "resultsTitle": "Талдау нәтижелері",
         "cta": "3 күн тегін бастау",
         "cancel": "1 басу арқылы бас тарту"

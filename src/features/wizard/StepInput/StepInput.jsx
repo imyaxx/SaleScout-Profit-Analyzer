@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Store, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import FormField, { inputClassName } from '@/shared/ui/FormField/FormField';
+import { ALLOWED_DOMAIN } from '@/shared/constants/app';
 import fieldStyles from '@/shared/ui/FormField/FormField.module.css';
 import s from './StepInput.module.css';
 
@@ -13,7 +14,7 @@ export default function StepInput({ initialUrl, initialShop, onBack, onNext }) {
 
   const validate = () => {
     const nextErrors = {};
-    if (!url || !url.includes('kaspi.kz')) {
+    if (!url || !url.includes(ALLOWED_DOMAIN)) {
       nextErrors.url = 'input.errors.url';
     }
     if (!shop || shop.trim().length < 2) {

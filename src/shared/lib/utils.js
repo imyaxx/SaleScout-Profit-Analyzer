@@ -13,6 +13,15 @@ export function cn(...inputs) {
     .join(' ');
 }
 
+export function toNumber(value, fallback = 0) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+export function safeString(value, fallback) {
+  return String(value ?? fallback);
+}
+
 export function formatMoney(amount, currency = '₸') {
   return (
     new Intl.NumberFormat('ru-RU', {

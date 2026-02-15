@@ -6,10 +6,11 @@
 
 **Frontend**
 
-- React + Vite
-- JavaScript
+- React 19 + Vite 6
+- JavaScript (ES2022+)
 - CSS Modules
-- Lucide React
+- Framer Motion (анимации)
+- Lucide React (иконки)
 - i18next + react-i18next (RU / KZ / EN)
 - ESLint + Prettier
 
@@ -47,10 +48,6 @@
     │   └── App.module.css
     │
     ├── shared/
-    │   ├── styles/
-    │   │   ├── tokens.css                    # Дизайн‑токены
-    │   │   └── globals.css                   # Reset, body, keyframes
-    │   │
     │   ├── ui/
     │   │   ├── ErrorBoundary/                # React Error Boundary
     │   │   ├── FormField/                    # Переиспользуемое поле формы
@@ -65,11 +62,12 @@
     │   │       └── en.json                   # Английский
     │   │
     │   ├── lib/
-    │   │   ├── utils.js                      # Утилиты (cn, formatMoney)
+    │   │   ├── utils.js                      # Утилиты (cn, formatMoney, toNumber, safeString)
     │   │   ├── onboardingClient.js           # API‑клиент (analyzeKaspi)
     │   │   └── miniSellerRanking.js          # Логика мини‑рейтинга продавцов
     │   │
     │   └── constants/
+    │       ├── app.js                        # Константы приложения (URL, домен, языки)
     │       └── demo.js                       # Фолбэк‑данные
     │
     ├── features/
@@ -115,6 +113,14 @@ server/
 - `KASPI_ZONE_ID` — список зон доставки через запятую (опционально)
 - `PROXY_*` — присутствуют в `server/.env.example`, в текущем коде не используются
 
+## Константы
+
+Общие константы приложения вынесены в `src/shared/constants/app.js`:
+- `TRIAL_LOGIN_URL` — URL страницы логина
+- `ALLOWED_DOMAIN` — домен для валидации ссылок (`kaspi.kz`)
+- `LANGUAGES` — массив поддерживаемых языков
+- `STORAGE_KEYS` — ключи localStorage
+
 ## Запуск
 
 **Frontend**
@@ -146,8 +152,10 @@ npm run format     # Prettier
 
 - Получает данные из внутреннего API Kaspi (без HTML‑парсинга)
 - Показывает ТОП‑продавцов с ценой, рейтингом и количеством отзывов
-- Анимирует мини‑рейтинг: пользователь «поднимается» к #1, конкуренты шевелятся
+- Анимирует мини‑рейтинг в мокапе телефона: пользователь «поднимается» к #1, конкуренты шевелятся
+- Плавное появление мокапа телефона (fade + scale + slide‑up)
 - Отображает липкую панель сравнения цен и CTA
+- Поддержка `prefers-reduced-motion` для accessibility
 
 ## Локализация
 

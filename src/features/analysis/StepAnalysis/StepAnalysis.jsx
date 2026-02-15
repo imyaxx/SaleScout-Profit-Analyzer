@@ -117,7 +117,7 @@ export default function StepAnalysis({
     };
   }, [pageRootRef]);
 
-  /* ── Block zoom (ctrl/cmd + wheel) on analysis ── */
+  /* ── Block zoom / double-tap on analysis (all devices) ── */
   useLayoutEffect(() => {
     const meta = document.querySelector('meta[name="viewport"]');
     const originalContent = meta?.getAttribute('content') ?? '';
@@ -129,11 +129,22 @@ export default function StepAnalysis({
     const blockZoomWheel = (e) => {
       if (e.ctrlKey || e.metaKey) e.preventDefault();
     };
+    const blockPinch = (e) => {
+      if (e.touches.length >= 2) e.preventDefault();
+    };
+    const blockGesture = (e) => e.preventDefault();
+
     window.addEventListener('wheel', blockZoomWheel, { passive: false });
+    window.addEventListener('touchstart', blockPinch, { passive: false });
+    window.addEventListener('gesturestart', blockGesture, { passive: false });
+    window.addEventListener('gesturechange', blockGesture, { passive: false });
 
     return () => {
       meta?.setAttribute('content', originalContent);
       window.removeEventListener('wheel', blockZoomWheel);
+      window.removeEventListener('touchstart', blockPinch);
+      window.removeEventListener('gesturestart', blockGesture);
+      window.removeEventListener('gesturechange', blockGesture);
     };
   }, []);
 

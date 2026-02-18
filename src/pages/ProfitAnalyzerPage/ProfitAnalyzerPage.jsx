@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import StepWelcome from '@/features/wizard/StepWelcome/StepWelcome';
 import StepInput from '@/features/wizard/StepInput/StepInput';
 import StepAnalysis from '@/features/analysis/StepAnalysis/StepAnalysis';
+import sellersBg from '@/assets/sellers-bg.png';
 import { analyzeKaspi } from '@/shared/lib/onboardingClient';
 import { cn } from '@/shared/lib/utils';
 
@@ -61,6 +62,13 @@ export default function ProfitAnalyzerPage() {
       runAnalysis();
     }
   }, [step, runAnalysis]);
+
+  useEffect(() => {
+    if (step === 'input') {
+      const img = new Image();
+      img.src = sellersBg;
+    }
+  }, [step]);
 
   const pageRootRef = useRef(null);
 
